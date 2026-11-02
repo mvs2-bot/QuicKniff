@@ -903,7 +903,7 @@ function upperBonus(p) {
 
 function lower(p) {
  return CATS.filter(c=>c.type!=='upper')
-  .reduce((n,c)=>n+(score(p,c.id)||0),0)+p.extraKniffel*100;
+  .reduce((n,c)=>n+(score(p,c.id)||0),0)+p.extraKniffel*50;
 }
 
 function total(p) {
@@ -970,7 +970,7 @@ function render() {
      <button data-extra="${p.id}"
       ${score(p,'kniffel')===50?'':'disabled'}
       aria-label="Zusatz-Kniffel abziehen">−</button>
-     <b>${p.extraKniffel} × 100</b>
+     <b>${p.extraKniffel} × 50</b>
      <button data-extra-add="${p.id}"
       ${score(p,'kniffel')===50?'':'disabled'}
       aria-label="Zusatz-Kniffel hinzufügen">＋</button>
