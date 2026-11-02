@@ -120,42 +120,54 @@
   .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 999px; font-size: 12px; z-index: 80; transition: .2s; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+  /* ULTRA-KOMPAKTE MOBILE ANSICHT FÜR HANDYS (z.B. OnePlus 13) */
   @media(max-width: 620px) {
-    .wrap { padding-left: 8px; padding-right: 8px; }
-    .bar { padding-block: 8px; gap: 10px; }
-    .logo { width: 36px; height: 36px; border-radius: 9px; }
-    h1 { font-size: 20px; }
-    .sub { font-size: 12px; }
-    .icon-btn { width: 36px; height: 36px; }
-    main { padding-block: 10px calc(16px + env(safe-area-inset-bottom, 0px)); gap: 10px; }
-    .card { padding: 10px 12px; border-radius: 16px; }
-    .toolbar { gap: 6px; }
-    .btn { min-height: 35px; padding: 0 10px; border-radius: 9px; font-size: 12px; gap: 5px; }
-    .btn.small { min-height: 30px; padding: 0 8px; font-size: 11px; }
-    .status { font-size: 10px; }
-    .game-head { gap: 8px; margin-bottom: 8px; align-items: center; }
-    .game-head h2 { font-size: 13px; }
-    .players-edit { margin-left: auto; width: auto; gap: 4px; }
-    .player-chip { padding: 4px 6px; font-size: 10px; gap: 4px; border-radius: 8px; }
-    .player-chip button { font-size: 14px; }
+    .wrap { padding-left: 4px; padding-right: 4px; }
+    .bar { padding-block: 5px; gap: 6px; }
+    .logo { width: 28px; height: 28px; border-radius: 7px; }
+    h1 { font-size: 15px; }
+    .sub { font-size: 9px; }
+    .icon-btn { width: 30px; height: 30px; }
     
-    .table-scroll { overflow-x: auto; margin: 0; border-radius: 10px; }
-    table { min-width: 520px; width: 100%; table-layout: fixed; }
-    th, td { padding: 5px 6px; font-size: 12px; white-space: nowrap; }
-    thead th { font-size: 11px; padding: 6px 6px; }
-    th:first-child, td:first-child { min-width: 130px; width: 34%; max-width: none; padding-left: 8px; font-size: 11px; }
-    th.player-col { min-width: 90px; width: calc(66% / var(--player-count, 2)); }
-    .player-total { font-size: 14px; }
-    .section-row td { padding: 5px 6px; font-size: 9px; letter-spacing: .06em; }
-    .score-cell { min-height: 28px; padding: 2px 4px; border-radius: 6px; font-size: 12px; font-weight: 650; }
-    .calc-row td { font-size: 11px; }
-    .total-row td { font-size: 13px; }
-    .bonus-control { gap: 3px; }
-    .bonus-control button { padding: 3px 5px; font-size: 10px; border-radius: 6px; }
-    .bonus-control b { font-size: 10px; white-space: nowrap; }
-    .note { font-size: 10px; display: block; }
-    .bottom-grid { grid-template-columns: 1fr; gap: 10px; }
-    .card-title { font-size: 12px; margin-bottom: 6px; }
+    main { padding-block: 4px calc(8px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+    .card { padding: 6px 8px; border-radius: 12px; }
+    .toolbar { gap: 4px; }
+    
+    .btn { min-height: 28px; padding: 0 6px; border-radius: 7px; font-size: 10px; gap: 3px; }
+    .btn.small { min-height: 24px; padding: 0 5px; font-size: 9px; }
+    .status { font-size: 8px; }
+    
+    .game-head { gap: 4px; margin-bottom: 4px; }
+    .game-head h2 { font-size: 11px; }
+    .players-edit { gap: 2px; }
+    .player-chip { padding: 2px 4px; font-size: 8px; gap: 2px; border-radius: 6px; }
+    .player-chip button { font-size: 11px; }
+    
+    /* Tabelle perfekt komprimiert für den gesamten Block auf einer Seite */
+    .table-scroll { overflow-x: auto; margin: 0; border-radius: 8px; }
+    table { min-width: 0; width: 100%; table-layout: fixed; }
+    
+    th, td { padding: 2px 1px; font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    thead th { font-size: 8px; padding: 3px 1px; }
+    
+    th:first-child, td:first-child { min-width: 0; width: 32%; max-width: 32%; padding-left: 4px; font-size: 8px; }
+    th.player-col { min-width: 0; width: calc(68% / var(--player-count, 2)); }
+    
+    .section-row td { padding: 2px 4px; font-size: 7px; letter-spacing: .03em; }
+    .score-cell { min-height: 20px; padding: 1px 0; border-radius: 4px; font-size: 9px; font-weight: 650; }
+    
+    .calc-row td { font-size: 8px; }
+    .total-row td { font-size: 10px; }
+    .player-total { font-size: 10px; }
+    
+    .bonus-control { gap: 1px; }
+    .bonus-control button { padding: 1px 2px; font-size: 8px; border-radius: 4px; }
+    .bonus-control b { font-size: 7px; white-space: nowrap; }
+    
+    .note { display: none; }
+    .bottom-grid { grid-template-columns: 1fr; gap: 5px; }
+    .bottom-grid > section:first-child { display: none; }
+    .card-title { font-size: 10px; margin-bottom: 3px; }
   }
 
   @media(prefers-reduced-motion: reduce) {
