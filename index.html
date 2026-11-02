@@ -31,7 +31,7 @@
   }
   * { box-sizing: border-box; }
   html { background: var(--bg); -webkit-text-size-adjust: 100%; }
-  body { margin: 0; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; -webkit-tap-highlight-color: transparent; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.45; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; }
+  body { margin: 0; min-height: 100vh; min-height: 100dvh; -webkit-tap-highlight-color: transparent; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.45; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
   button { font: inherit; color: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--p1); outline-offset: 2px; }
   .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -39,7 +39,7 @@
 
   body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
   header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent);
-    -webkit-backdrop-filter: saturate(1.8) blur(18px); backdrop-filter: saturate(1.8) blur(18px); border-bottom: 1px solid var(--sep); flex: none; width: 100%; }
+    -webkit-backdrop-filter: saturate(1.8) blur(18px); backdrop-filter: saturate(1.8) blur(18px); border-bottom: 1px solid var(--sep); }
   .bar { display: flex; align-items: center; gap: 12px; padding-block: 10px; }
   .logo { width: 36px; height: 36px; border-radius: 9px; flex: none; display: block; }
   .head { flex: 1; min-width: 0; }
@@ -48,7 +48,7 @@
   .icon-btn { width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--card); box-shadow: var(--shadow); display: inline-grid; place-items: center; padding: 0; color: var(--ink); flex: none; }
   .icon-btn:hover { background: var(--hover); }
 
-  main { flex: 1; overflow-y: auto; display: grid; gap: 12px; padding-block: 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  main { display: grid; gap: 12px; padding-block: 16px calc(40px + env(safe-area-inset-bottom, 0px)); flex: 1; }
   .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; min-width: 0; }
 
   .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -122,40 +122,40 @@
 
   @media(max-width: 620px) {
     .wrap { padding-left: 8px; padding-right: 8px; }
-    .bar { padding-block: 6px; gap: 8px; }
-    .logo { width: 30px; height: 30px; }
-    h1 { font-size: 17px; }
-    .sub { font-size: 10px; }
-    .icon-btn { width: 32px; height: 32px; }
-    main { padding-block: 7px calc(12px + env(safe-area-inset-bottom, 0px)); gap: 7px; }
-    .card { padding: 8px; border-radius: 14px; }
-    .toolbar { gap: 5px; }
-    .btn { min-height: 31px; padding: 0 8px; border-radius: 8px; font-size: 11px; gap: 4px; }
-    .btn.small { min-height: 27px; padding: 0 7px; font-size: 10px; }
-    .status { font-size: 9px; }
-    .game-head { gap: 5px; margin-bottom: 6px; align-items: center; }
-    .game-head h2 { font-size: 12px; }
-    .players-edit { margin-left: auto; width: auto; gap: 3px; }
-    .player-chip { padding: 3px 5px; font-size: 9px; gap: 3px; border-radius: 7px; }
-    .player-chip button { font-size: 12px; }
-    .table-scroll { overflow: hidden; margin: 0; border-radius: 9px; }
-    table { min-width: 0; width: 100%; table-layout: fixed; }
-    th, td { padding: 3px 2px; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    thead th { font-size: 9px; padding: 5px 2px; }
-    th:first-child, td:first-child { min-width: 0; width: 36%; max-width: 36%; padding-left: 5px; font-size: 9px; }
-    th.player-col { min-width: 0; width: calc(64% / var(--player-count, 2)); }
-    .player-total { font-size: 12px; }
-    .section-row td { padding: 3px 5px; font-size: 8px; letter-spacing: .05em; }
-    .score-cell { min-height: 23px; padding: 1px 0; border-radius: 5px; font-size: 10px; font-weight: 650; }
-    .calc-row td { font-size: 9px; }
-    .total-row td { font-size: 12px; }
-    .bonus-control { gap: 1px; }
-    .bonus-control button { padding: 2px 3px; font-size: 9px; border-radius: 5px; }
-    .bonus-control b { font-size: 8px; white-space: nowrap; }
-    .note { display: none; }
-    .bottom-grid { grid-template-columns: 1fr; gap: 7px; }
-    .bottom-grid > section:first-child { display: none; }
-    .card-title { font-size: 11px; margin-bottom: 5px; }
+    .bar { padding-block: 8px; gap: 10px; }
+    .logo { width: 36px; height: 36px; border-radius: 9px; }
+    h1 { font-size: 20px; }
+    .sub { font-size: 12px; }
+    .icon-btn { width: 36px; height: 36px; }
+    main { padding-block: 10px calc(16px + env(safe-area-inset-bottom, 0px)); gap: 10px; }
+    .card { padding: 10px 12px; border-radius: 16px; }
+    .toolbar { gap: 6px; }
+    .btn { min-height: 35px; padding: 0 10px; border-radius: 9px; font-size: 12px; gap: 5px; }
+    .btn.small { min-height: 30px; padding: 0 8px; font-size: 11px; }
+    .status { font-size: 10px; }
+    .game-head { gap: 8px; margin-bottom: 8px; align-items: center; }
+    .game-head h2 { font-size: 13px; }
+    .players-edit { margin-left: auto; width: auto; gap: 4px; }
+    .player-chip { padding: 4px 6px; font-size: 10px; gap: 4px; border-radius: 8px; }
+    .player-chip button { font-size: 14px; }
+    
+    .table-scroll { overflow-x: auto; margin: 0; border-radius: 10px; }
+    table { min-width: 520px; width: 100%; table-layout: fixed; }
+    th, td { padding: 5px 6px; font-size: 12px; white-space: nowrap; }
+    thead th { font-size: 11px; padding: 6px 6px; }
+    th:first-child, td:first-child { min-width: 130px; width: 34%; max-width: none; padding-left: 8px; font-size: 11px; }
+    th.player-col { min-width: 90px; width: calc(66% / var(--player-count, 2)); }
+    .player-total { font-size: 14px; }
+    .section-row td { padding: 5px 6px; font-size: 9px; letter-spacing: .06em; }
+    .score-cell { min-height: 28px; padding: 2px 4px; border-radius: 6px; font-size: 12px; font-weight: 650; }
+    .calc-row td { font-size: 11px; }
+    .total-row td { font-size: 13px; }
+    .bonus-control { gap: 3px; }
+    .bonus-control button { padding: 3px 5px; font-size: 10px; border-radius: 6px; }
+    .bonus-control b { font-size: 10px; white-space: nowrap; }
+    .note { font-size: 10px; display: block; }
+    .bottom-grid { grid-template-columns: 1fr; gap: 10px; }
+    .card-title { font-size: 12px; margin-bottom: 6px; }
   }
 
   @media(prefers-reduced-motion: reduce) {
@@ -205,8 +205,7 @@
  </div>
 
  <p class="note">
-  Tipp: Feld antippen, Punkte auswählen.
-  Ein ausgefülltes Feld kann jederzeit geändert werden.
+  Tipp: Feld antippen, Punkte auswählen. Ein ausgefülltes Feld kann jederzeit geändert werden.
  </p>
 </section>
 
@@ -230,8 +229,7 @@
   <input id="importFile" type="file" accept="application/json,.json" hidden>
 
   <p class="note">
-   Dein Spielstand bleibt auf diesem Gerät und in diesem Browser gespeichert.
-   Exportiere gelegentlich eine Sicherung.
+   Dein Spielstand bleibt auf diesem Gerät und in diesem Browser gespeichert. Exportiere gelegentlich eine Sicherung.
   </p>
  </section>
 
