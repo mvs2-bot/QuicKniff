@@ -1,7 +1,7 @@
 {
-  "name": "QuicKniff – Kniffel-Block",
+  "name": "QuicKniff – Kniff-Block",
   "short_name": "QuicKniff",
-  "description": "Der schnelle digitale Kniffel-Block: Punkte eintragen, Summen und Bonus automatisch",
+  "description": "Der schnelle digitale Kniff-Block: Punkte eintragen, Summen und Bonus automatisch",
   "lang": "de",
   "start_url": "./",
   "scope": "./",

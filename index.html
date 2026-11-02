@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>QuicKniff</title>
-<meta name="description" content="QuicKniff – der schnelle digitale Kniffel-Block.">
+<meta name="description" content="QuicKniff – der schnelle digitale Kniff-Block.">
 <meta name="theme-color" content="#f2f2f7">
 <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -298,7 +298,7 @@ main {
 }
 
 /* =========================================
-   KNiffel-TABELLE
+   K-TABELLE
    Vollständige Breite ohne horizontales Scrollen
    ========================================= */
 
@@ -705,7 +705,7 @@ th.player-col {
     <img class="logo" src="icon.svg" alt="">
     <div class="head">
       <h1>QuicKniff</h1>
-      <div class="sub">Der schnelle digitale Kniffel-Block</div>
+      <div class="sub">Der schnelle digitale Kniff-Block</div>
     </div>
     <button class="icon-btn" id="themeBtn" type="button"
       aria-label="Hell oder dunkel" title="Hell / Dunkel">
@@ -720,25 +720,13 @@ th.player-col {
 <main>
 
   <section class="card">
-    <div class="toolbar">
-      <button class="btn" id="newGame">＋ Neues Spiel</button>
-      <button class="btn secondary" id="undoBtn" disabled>↶ Rückgängig</button>
-      <span class="spacer"></span>
-      <span class="status">
-        <i class="dot"></i>
-        <span id="saveStatus">Lokal gespeichert</span>
-      </span>
-    </div>
-  </section>
-
-  <section class="card">
     <div class="game-head">
       <h2 id="gameTitle">Aktuelle Partie</h2>
       <div class="players-edit" id="playersEdit"></div>
     </div>
 
     <div class="table-scroll" id="tableScroll">
-      <table id="scoreTable" aria-label="Kniffel-Spielzettel"></table>
+      <table id="scoreTable" aria-label="Spielzettel"></table>
     </div>
 
     <p class="note">
@@ -756,12 +744,23 @@ th.player-col {
     <section class="card">
       <h2 class="card-title">Spieloptionen</h2>
 
-      <div class="toolbar">
-        <button class="btn secondary small" id="addPlayer">＋ Spieler</button>
-        <button class="btn secondary small" id="exportBtn">↓ Export</button>
-        <button class="btn secondary small" id="importBtn">↑ Import</button>
-        <button class="btn ghost small" id="resetBtn">Zurücksetzen</button>
-      </div>
+      
+    <div class="toolbar">
+      <button class="btn" id="newGame">＋ Neues Spiel</button>
+      <span class="spacer"></span>
+      <span class="status">
+        <i class="dot"></i>
+        <span id="saveStatus">Lokal gespeichert</span>
+      </span>
+    </div>
+
+<div class="toolbar" style="margin-top: 12px;">
+    <button class="btn secondary small" id="addPlayer">＋ Spieler</button>
+    <button class="btn secondary small" id="exportBtn">↓ Export</button>
+    <button class="btn secondary small" id="importBtn">↑ Import</button>
+    <button class="btn ghost small" id="resetBtn">Zurücksetzen</button>
+  </div>
+
 
       <input id="importFile" type="file" accept="application/json,.json" hidden>
 
@@ -808,19 +807,19 @@ const CATS = [
  {id:'fullHouse',name:'Full House',type:'fixed',points:25},
  {id:'smallStraight',name:'Kleine Straße',type:'fixed',points:30},
  {id:'largeStraight',name:'Große Straße',type:'fixed',points:40},
- {id:'kniffel',name:'Kniffel',type:'fixed',points:50},
+ {id:'kniff',name:'Kniff',type:'fixed',points:50},
  {id:'chance',name:'Chance',type:'sum'}
 ];
 
 const STORAGE = 'quickniff-state-v1';
 
-let state, historyStack = [], activeCell = null;
+let state, activeCell = null;
 
 const blankPlayer = name => ({
  id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
  name,
  scores: {},
- extraKniffel: 0
+ extraKniff: 0
 });
 
 function fresh(names=['Spieler 1','Spieler 2']) {
@@ -837,6 +836,7 @@ function normalize(x) {
  const ids = new Set(CATS.map(c=>c.id));
  x.players = x.players.map((p,i)=>{
   const scores = {};
+  if(p && p.scores && 'kniffel' in p.scores && !('kniff' in p.scores)) p.scores.kniff = p.scores.kniffel; // alte Spielstände
   if(p && p.scores && typeof p.scores==='object') {
    for(const [k,v] of Object.entries(p.scores)) if(ids.has(k) && Number.isFinite(v)) scores[k]=v;
   }
@@ -844,7 +844,7 @@ function normalize(x) {
    id: p && p.id ? String(p.id) : blankPlayer('').id,
    name: p && p.name ? String(p.name) : 'Spieler '+(i+1),
    scores,
-   extraKniffel: Math.max(0, Math.floor(Number(p && p.extraKniffel) || 0))
+   extraKniff: Math.max(0, Math.floor(Number(p && (p.extraKniff ?? p.extraKniffel)) || 0))
   };
  });
  return x;
@@ -860,10 +860,6 @@ function load() {
 
 state = load();
 
-function clone(x) {
- return JSON.parse(JSON.stringify(x));
-}
-
 function save() {
  try {
   localStorage.setItem(STORAGE,JSON.stringify(state));
@@ -873,23 +869,9 @@ function save() {
  }
 }
 
-// Vor jeder Änderung aufrufen: merkt den aktuellen Stand für „Rückgängig“.
-function snapshot() {
- historyStack.push(clone(state));
- if(historyStack.length>40) historyStack.shift();
-}
-
 function commit() {
  save();
  render();
-}
-
-function undo() {
- if(!historyStack.length) return;
- state=historyStack.pop();
- save();
- render();
- toast('Letzte Änderung rückgängig');
 }
 
 function esc(s) {
@@ -918,7 +900,7 @@ function upperBonus(p) {
 
 function lower(p) {
  return CATS.filter(c=>c.type!=='upper')
-  .reduce((n,c)=>n+(score(p,c.id)||0),0)+(score(p,'kniffel')===50?p.extraKniffel*50:0);
+  .reduce((n,c)=>n+(score(p,c.id)||0),0)+(score(p,'kniff')===50?p.extraKniff*50:0);
 }
 
 function total(p) {
@@ -930,8 +912,6 @@ function done(p) {
 }
 
 function render() {
-
- $('undoBtn').disabled=!historyStack.length;
 
  $('playersEdit').innerHTML=state.players.map(p=>
   `<span class="player-chip">
@@ -978,17 +958,17 @@ function render() {
   .forEach(c=>rows.push(row(c)));
 
  rows.push(`<tr>
-  <td>Zusatz-Kniffel</td>
+  <td>Zusatz-Kniff</td>
   ${state.players.map(p=>`
    <td>
     <div class="bonus-control">
      <button data-extra="${p.id}"
-      ${score(p,'kniffel')===50&&p.extraKniffel>0?'':'disabled'}
-      aria-label="Zusatz-Kniffel abziehen">−</button>
-     <b>${p.extraKniffel} × 50</b>
+      ${score(p,'kniff')===50&&p.extraKniff>0?'':'disabled'}
+      aria-label="Zusatz-Kniff abziehen">−</button>
+     <b>${p.extraKniff} × 50</b>
      <button data-extra-add="${p.id}"
-      ${score(p,'kniffel')===50?'':'disabled'}
-      aria-label="Zusatz-Kniffel hinzufügen">＋</button>
+      ${score(p,'kniff')===50?'':'disabled'}
+      aria-label="Zusatz-Kniff hinzufügen">＋</button>
     </div>
    </td>
   `).join('')}
@@ -1090,7 +1070,6 @@ $('modalContent').addEventListener('click',e=>{
 
  const p=state.players.find(x=>x.id===activeCell.pid);
  if(!p) return closeModal();
- snapshot();
  p.scores[activeCell.cid]=Number(b.dataset.choice);
 
  commit();
@@ -1111,13 +1090,10 @@ $('clearScore').onclick=()=>{
  if(!activeCell) return;
  const p=state.players.find(x=>x.id===activeCell.pid);
  if(!p) return closeModal();
- snapshot();
  delete p.scores[activeCell.cid];
  commit();
  closeModal();
 };
-
-$('undoBtn').onclick=undo;
 
 $('playersEdit').addEventListener('click',e=>{
  const r=e.target.closest('[data-rename]');
@@ -1125,7 +1101,6 @@ $('playersEdit').addEventListener('click',e=>{
   const p=state.players.find(x=>x.id===r.dataset.rename);
   const n=prompt('Neuer Spielername:',p.name);
   if(n&&n.trim()) {
-   snapshot();
    p.name=n.trim();
    commit();
   }
@@ -1136,7 +1111,6 @@ $('playersEdit').addEventListener('click',e=>{
  if(d) {
   const p=state.players.find(x=>x.id===d.dataset.remove);
   if(confirm(p.name+' aus der Partie entfernen?')) {
-   snapshot();
    state.players=state.players.filter(x=>x.id!==p.id);
    commit();
   }
@@ -1149,18 +1123,16 @@ $('scoreTable').addEventListener('click',e=>{
 
  if(add) {
   const p=state.players.find(x=>x.id===add.dataset.extraAdd);
-  if(p&&score(p,'kniffel')===50) {
-   snapshot();
-   p.extraKniffel++;
+  if(p&&score(p,'kniff')===50) {
+   p.extraKniff++;
    commit();
   }
  }
 
  if(sub) {
   const p=state.players.find(x=>x.id===sub.dataset.extra);
-  if(p&&p.extraKniffel>0) {
-   snapshot();
-   p.extraKniffel--;
+  if(p&&p.extraKniff>0) {
+   p.extraKniff--;
    commit();
   }
  }
@@ -1174,7 +1146,6 @@ $('addPlayer').onclick=()=>{
 
  const n=prompt('Name des neuen Spielers:','Spieler '+(state.players.length+1));
  if(n&&n.trim()) {
-  snapshot();
   state.players.push(blankPlayer(n.trim()));
   commit();
  }
@@ -1183,7 +1154,6 @@ $('addPlayer').onclick=()=>{
 $('newGame').onclick=()=>{
  if(!confirm('Neue Partie mit denselben Spielern starten? Die aktuelle Partie wird nicht archiviert, exportiere sie bei Bedarf vorher.')) return;
 
- snapshot();
  state=fresh(state.players.map(p=>p.name));
  commit();
  toast('Neue Partie gestartet');
@@ -1192,7 +1162,6 @@ $('newGame').onclick=()=>{
 $('resetBtn').onclick=()=>{
  if(!confirm('Alle Punkte dieser Partie wirklich löschen?')) return;
 
- snapshot();
  state=fresh(state.players.map(p=>p.name));
  commit();
 };
@@ -1217,7 +1186,6 @@ $('importFile').onchange=async e=>{
   const x=normalize(JSON.parse(await f.text()));
   if(!x) throw Error();
 
-  snapshot();
   state=x;
   commit();
   toast('Spielstand importiert');

@@ -1,13 +1,12 @@
 # 🎲 QuicKniff
 
-Der schnelle digitale Kniffel-Block für 1–6 Spieler, direkt im Browser.
+Der schnelle digitale Kniff-Block für 1–6 Spieler, direkt im Browser.
 
 ## Funktionen
 
 - **Spielzettel:** Feld antippen, Punkte auswählen oder streichen; ausgefüllte Felder lassen sich jederzeit ändern
 - **Automatische Summen:** Zwischensumme, Bonus (+35 ab 63 Punkten im oberen Block), Gesamtpunkte
-- **Zusatz-Kniffel:** je +50 Punkte, sobald ein Kniffel eingetragen ist
-- **Rückgängig:** die letzten 40 Änderungen
+- **Zusatz-Kniff:** je +50 Punkte, sobald ein Kniff eingetragen ist
 - **Spieler:** hinzufügen, umbenennen, entfernen
 - **Sichern:** Spielstand bleibt im Local Storage; Export und Import als JSON-Datei
 - **Hell/Dunkel-Modus:** gemeinsame Einstellung mit dem Dashboard (`overall-theme`)
