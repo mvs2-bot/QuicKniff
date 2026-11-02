@@ -9,6 +9,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <script>
+  // Darstellung gilt für alle Seiten (overall-theme), vor dem ersten Rendern setzen. Standard: hell.
   (function () {
     var t = 'light';
     try { t = localStorage.getItem('overall-theme') || localStorage.getItem('dash-theme') || 'light'; } catch (e) {}
@@ -16,6 +17,7 @@
   })();
 </script>
 <style>
+  /* Tokens 1:1 aus QuickSTL, Akzent --p1 = App-Farbe von QuicKniff (Rose). */
   :root {
     --bg: #f2f2f7; --card: #fff; --well: #f2f2f7; --hover: #e9e9ef; --line: #e2e2e7; --sep: rgba(60, 60, 67, .14);
     --ink: #1c1c1e; --text: #3a3a3c; --mute: #6c6c70;
@@ -31,11 +33,11 @@
   }
   * { box-sizing: border-box; }
   html { background: var(--bg); -webkit-text-size-adjust: 100%; }
-  body { margin: 0; min-height: 100vh; min-height: 100dvh; -webkit-tap-highlight-color: transparent; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.45; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
+  body { margin: 0; min-height: 100vh; -webkit-tap-highlight-color: transparent; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.45; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; }
   button { font: inherit; color: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--p1); outline-offset: 2px; }
   .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .wrap { max-width: 1120px; margin: 0 auto; width: 100%; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 
   body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
   header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -48,13 +50,14 @@
   .icon-btn { width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--card); box-shadow: var(--shadow); display: inline-grid; place-items: center; padding: 0; color: var(--ink); flex: none; }
   .icon-btn:hover { background: var(--hover); }
 
-  main { display: grid; gap: 12px; padding-block: 16px calc(40px + env(safe-area-inset-bottom, 0px)); flex: 1; }
+  main { display: grid; gap: 12px; padding-block: 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
   .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; min-width: 0; }
 
   .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .spacer { flex: 1; }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 0 13px; border: 0; border-radius: 10px; background: var(--p1); color: var(--on-p1); font-weight: 650; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 0 13px; border: 0; border-radius: 10px; background: var(--p1); color: var(--on-p1); font-weight: 600; font-size: 14px; }
+  .btn:hover { filter: brightness(1.06); }
   .btn.secondary { background: var(--well); color: var(--ink); }
   .btn.ghost { background: transparent; color: var(--mute); }
   .btn.small { min-height: 32px; padding: 0 10px; font-size: 12px; }
@@ -62,44 +65,45 @@
   .status { font-size: 11px; color: var(--mute); display: flex; align-items: center; gap: 6px; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: #30b66f; }
 
-  .game-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .game-head h2 { margin: 0; color: var(--ink); font-size: 15px; }
+  .game-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .game-head h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--mute); }
 
   .players-edit { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
-  .player-chip { display: flex; align-items: center; gap: 5px; padding: 5px 8px; background: var(--well); border-radius: 9px; font-size: 12px; color: var(--ink); }
-  .player-chip button { border: 0; background: none; color: var(--mute); padding: 0 2px; font-size: 16px; }
+  .player-chip { display: flex; align-items: center; gap: 5px; padding: 4px 8px; background: var(--well); border-radius: 9px; font-size: 12px; color: var(--ink); }
+  .player-chip button { border: 0; background: none; color: var(--mute); padding: 0 2px; font-size: 14px; }
 
   .table-scroll { overflow-x: auto; overscroll-behavior-x: contain; border: 1px solid var(--line); border-radius: 12px; scrollbar-width: thin; }
-  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 560px; table-layout: fixed; font-variant-numeric: tabular-nums; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 520px; table-layout: fixed; font-variant-numeric: tabular-nums; }
   th, td { padding: 8px 9px; text-align: center; border-bottom: 1px solid var(--sep); border-right: 1px solid var(--sep); white-space: nowrap; }
   tr:last-child td { border-bottom: 0; }
   th:last-child, td:last-child { border-right: 0; }
 
   thead th { position: sticky; top: 0; background: var(--well); color: var(--ink); font-size: 12px; font-weight: 700; z-index: 2; }
-  th:first-child, td:first-child { position: sticky; left: 0; text-align: left; z-index: 3; background: var(--card); min-width: 148px; width: 34%; }
+  th:first-child, td:first-child { position: sticky; left: 0; text-align: left; z-index: 3; background: var(--card); min-width: 140px; width: 34%; }
   thead th:first-child { z-index: 4; background: var(--well); }
-  th.player-col { min-width: 94px; width: calc(66% / var(--player-count, 2)); }
+  th.player-col { min-width: 90px; width: calc(66% / var(--player-count, 2)); }
 
-  .player-total { font-size: 17px; font-weight: 750; color: var(--p1); }
-  .section-row td { background: var(--well) !important; color: var(--mute); font-size: 10px; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; padding: 6px 9px; }
+  .player-total { font-size: 16px; font-weight: 600; color: var(--p1); }
+  .section-row td { background: var(--well) !important; color: var(--mute); font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: 6px 9px; }
 
-  .score-cell { width: 100%; min-width: 0; min-height: 32px; padding: 4px 6px; border: 0; border-radius: 7px; background: transparent; color: var(--ink); font-weight: 650; }
+  .score-cell { width: 100%; min-width: 0; min-height: 30px; padding: 4px 6px; border: 0; border-radius: 7px; background: transparent; color: var(--ink); font-weight: 600; }
   .score-cell:hover { background: var(--well); }
-  .score-cell.empty { color: var(--mute); font-weight: 450; }
+  .score-cell.empty { color: var(--mute); font-weight: 400; }
   .score-cell.filled { background: var(--p1-soft); color: var(--p1); }
 
-  .calc-row td { background: color-mix(in srgb, var(--well) 65%, var(--card)); font-weight: 650; }
+  .calc-row td { background: color-mix(in srgb, var(--well) 65%, var(--card)); font-weight: 600; }
   .calc-row td:first-child { background: var(--well); }
-  .total-row td { background: var(--p1-soft); font-weight: 800; color: var(--p1); font-size: 15px; }
+  .total-row td { background: var(--p1-soft); font-weight: 700; color: var(--p1); font-size: 14px; }
   .total-row td:first-child { background: var(--p1-soft); }
 
   .bonus-control { display: flex; justify-content: center; align-items: center; gap: 4px; }
-  .bonus-control button { border: 0; border-radius: 7px; background: var(--well); padding: 4px 7px; color: var(--ink); font-size: 11px; }
+  .bonus-control button { border: 0; border-radius: 7px; background: var(--well); padding: 3px 6px; color: var(--ink); font-size: 11px; }
   .bonus-control button:disabled { opacity: .35; cursor: not-allowed; }
 
-  .note { font-size: 11px; color: var(--mute); margin: 9px 0 0; }
+  .note { margin: 8px 0 0; font-size: 11px; color: var(--mute); }
   .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .card-title { font-size: 13px; font-weight: 650; color: var(--mute); margin: 0 0 9px; }
+  @media (max-width: 820px) { .bottom-grid { grid-template-columns: 1fr; } }
+  .card-title { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--mute); }
   .scoreboard { display: grid; gap: 8px; }
   .scoreline { display: flex; justify-content: space-between; gap: 12px; color: var(--text); }
   .scoreline strong { color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -120,57 +124,19 @@
   .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 999px; font-size: 12px; z-index: 80; transition: .2s; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-  /* ULTRA-KOMPAKTE MOBILE ANSICHT FÜR HANDYS (z.B. OnePlus 13) */
-  @media(max-width: 620px) {
-    .wrap { padding-left: 4px; padding-right: 4px; }
-    .bar { padding-block: 5px; gap: 6px; }
-    .logo { width: 28px; height: 28px; border-radius: 7px; }
-    h1 { font-size: 15px; }
-    .sub { font-size: 9px; }
-    .icon-btn { width: 30px; height: 30px; }
-    
-    main { padding-block: 4px calc(8px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
-    .card { padding: 6px 8px; border-radius: 12px; }
-    .toolbar { gap: 4px; }
-    
-    .btn { min-height: 28px; padding: 0 6px; border-radius: 7px; font-size: 10px; gap: 3px; }
-    .btn.small { min-height: 24px; padding: 0 5px; font-size: 9px; }
-    .status { font-size: 8px; }
-    
-    .game-head { gap: 4px; margin-bottom: 4px; }
-    .game-head h2 { font-size: 11px; }
-    .players-edit { gap: 2px; }
-    .player-chip { padding: 2px 4px; font-size: 8px; gap: 2px; border-radius: 6px; }
-    .player-chip button { font-size: 11px; }
-    
-    /* Tabelle perfekt komprimiert für den gesamten Block auf einer Seite */
-    .table-scroll { overflow-x: auto; margin: 0; border-radius: 8px; }
-    table { min-width: 0; width: 100%; table-layout: fixed; }
-    
-    th, td { padding: 2px 1px; font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    thead th { font-size: 8px; padding: 3px 1px; }
-    
-    th:first-child, td:first-child { min-width: 0; width: 32%; max-width: 32%; padding-left: 4px; font-size: 8px; }
-    th.player-col { min-width: 0; width: calc(68% / var(--player-count, 2)); }
-    
-    .section-row td { padding: 2px 4px; font-size: 7px; letter-spacing: .03em; }
-    .score-cell { min-height: 20px; padding: 1px 0; border-radius: 4px; font-size: 9px; font-weight: 650; }
-    
-    .calc-row td { font-size: 8px; }
-    .total-row td { font-size: 10px; }
-    .player-total { font-size: 10px; }
-    
-    .bonus-control { gap: 1px; }
-    .bonus-control button { padding: 1px 2px; font-size: 8px; border-radius: 4px; }
-    .bonus-control b { font-size: 7px; white-space: nowrap; }
-    
-    .note { display: none; }
-    .bottom-grid { grid-template-columns: 1fr; gap: 5px; }
-    .bottom-grid > section:first-child { display: none; }
-    .card-title { font-size: 10px; margin-bottom: 3px; }
+  /* Speziell optimierte mobile Tabellen-Größen für Smartphones wie das OnePlus 13 (passt auf eine Bildschirmseite) */
+  @media(max-width: 600px) {
+    th, td { padding: 3px 4px; font-size: 10px; }
+    thead th { font-size: 10px; padding: 4px 4px; }
+    th:first-child, td:first-child { min-width: 105px; width: 32%; }
+    .score-cell { min-height: 22px; padding: 1px 2px; font-size: 10px; }
+    .section-row td { padding: 3px 4px; font-size: 8px; }
+    .calc-row td, .total-row td { font-size: 10px; }
+    .bonus-control button { padding: 1px 4px; font-size: 9px; }
+    .card { padding: 10px 12px; }
   }
 
-  @media(prefers-reduced-motion: reduce) {
+  @media (prefers-reduced-motion: reduce) {
     * { scroll-behavior: auto !important; transition: none !important; }
   }
 </style>
@@ -179,92 +145,88 @@
 <body>
 
 <header>
- <div class="wrap bar">
-  <img class="logo" src="icon.svg" alt="">
-  <div class="head">
-   <h1>QuicKniff</h1>
-   <div class="sub">Der schnelle digitale Kniffel-Block</div>
+  <div class="wrap bar">
+    <img class="logo" src="icon.svg" alt="">
+    <div class="head"><h1>QuicKniff</h1><div class="sub">Der schnelle digitale Kniffel-Block</div></div>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Hell oder dunkel" title="Hell / Dunkel">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    </button>
   </div>
-  <button class="icon-btn" id="themeBtn" type="button" aria-label="Hell oder dunkel" title="Hell / Dunkel">
-    <svg class="ic" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
-  </button>
- </div>
 </header>
 
 <div class="wrap">
 <main>
 
-<section class="card">
- <div class="toolbar">
-  <button class="btn" id="newGame">＋ Neues Spiel</button>
-  <button class="btn secondary" id="undoBtn" disabled>↶ Rückgängig</button>
-  <span class="spacer"></span>
-  <span class="status">
-   <i class="dot"></i>
-   <span id="saveStatus">Lokal gespeichert</span>
-  </span>
- </div>
-</section>
+  <section class="card">
+    <div class="toolbar">
+      <button class="btn" id="newGame">＋ Neues Spiel</button>
+      <button class="btn secondary" id="undoBtn" disabled>↶ Rückgängig</button>
+      <span class="spacer"></span>
+      <span class="status">
+        <i class="dot"></i>
+        <span id="saveStatus">Lokal gespeichert</span>
+      </span>
+    </div>
+  </section>
 
-<section class="card">
- <div class="game-head">
-  <h2 id="gameTitle">Aktuelle Partie</h2>
-  <div class="players-edit" id="playersEdit"></div>
- </div>
+  <section class="card">
+    <div class="game-head">
+      <h2 id="gameTitle">Aktuelle Partie</h2>
+      <div class="players-edit" id="playersEdit"></div>
+    </div>
 
- <div class="table-scroll" id="tableScroll">
-  <table id="scoreTable" aria-label="Kniffel-Spielzettel"></table>
- </div>
+    <div class="table-scroll" id="tableScroll">
+      <table id="scoreTable" aria-label="Kniffel-Spielzettel"></table>
+    </div>
 
- <p class="note">
-  Tipp: Feld antippen, Punkte auswählen. Ein ausgefülltes Feld kann jederzeit geändert werden.
- </p>
-</section>
+    <p class="note">
+      Tipp: Feld antippen, Punkte auswählen. Ein ausgefülltes Feld kann jederzeit geändert werden.
+    </p>
+  </section>
 
-<div class="bottom-grid">
+  <div class="bottom-grid">
 
- <section class="card">
-  <h3 class="card-title">Spielstand</h3>
-  <div class="scoreboard" id="scoreboard"></div>
- </section>
+    <section class="card">
+      <h2 class="card-title">Spielstand</h2>
+      <div class="scoreboard" id="scoreboard"></div>
+    </section>
 
- <section class="card">
-  <h3 class="card-title">Spieloptionen</h3>
+    <section class="card">
+      <h2 class="card-title">Spieloptionen</h2>
 
-  <div class="toolbar">
-   <button class="btn secondary small" id="addPlayer">＋ Spieler</button>
-   <button class="btn secondary small" id="exportBtn">↓ Export</button>
-   <button class="btn secondary small" id="importBtn">↑ Import</button>
-   <button class="btn ghost small" id="resetBtn">Zurücksetzen</button>
+      <div class="toolbar">
+        <button class="btn secondary small" id="addPlayer">＋ Spieler</button>
+        <button class="btn secondary small" id="exportBtn">↓ Export</button>
+        <button class="btn secondary small" id="importBtn">↑ Import</button>
+        <button class="btn ghost small" id="resetBtn">Zurücksetzen</button>
+      </div>
+
+      <input id="importFile" type="file" accept="application/json,.json" hidden>
+
+      <p class="note">
+        Dein Spielstand bleibt auf diesem Gerät und in diesem Browser gespeichert. Exportiere gelegentlich eine Sicherung.
+      </p>
+    </section>
+
   </div>
 
-  <input id="importFile" type="file" accept="application/json,.json" hidden>
-
-  <p class="note">
-   Dein Spielstand bleibt auf diesem Gerät und in diesem Browser gespeichert. Exportiere gelegentlich eine Sicherung.
-  </p>
- </section>
-
-</div>
 </main>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
- <div class="modal">
-  <h3 id="modalTitle">Punkte auswählen</h3>
-  <div class="modal-sub" id="modalSub"></div>
-  <div id="modalContent"></div>
+  <div class="modal">
+    <h3 id="modalTitle">Punkte auswählen</h3>
+    <div class="modal-sub" id="modalSub"></div>
+    <div id="modalContent"></div>
 
-  <div class="modal-actions">
-   <button class="btn secondary" id="cancelModal">Abbrechen</button>
-   <button class="btn ghost" id="clearScore">Feld leeren</button>
+    <div class="modal-actions">
+      <button class="btn secondary" id="cancelModal">Abbrechen</button>
+      <button class="btn ghost" id="clearScore">Feld leeren</button>
+    </div>
   </div>
- </div>
 </div>
 
 <div class="toast" id="toast"></div>
-
-<script src="shared/ios-nav.js" defer></script>
 
 <script>
 (() => {
