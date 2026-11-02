@@ -727,18 +727,6 @@ th.player-col {
 <main>
 
   <section class="card">
-    <div class="toolbar">
-      <button class="btn" id="newGame">＋ Neues Spiel</button>
-      <button class="btn secondary" id="undoBtn" disabled>↶ Rückgängig</button>
-      <span class="spacer"></span>
-      <span class="status">
-        <i class="dot"></i>
-        <span id="saveStatus">Lokal gespeichert</span>
-      </span>
-    </div>
-  </section>
-
-  <section class="card">
     <div class="game-head">
       <h2 id="gameTitle">Aktuelle Partie</h2>
       <div class="players-edit" id="playersEdit"></div>
@@ -763,12 +751,26 @@ th.player-col {
     <section class="card">
       <h2 class="card-title">Spieloptionen</h2>
 
+      
+  <section class="card">
+    <div class="toolbar">
+      <button class="btn" id="newGame">＋ Neues Spiel</button>
+      <span class="spacer"></span>
+      <span class="status">
+        <i class="dot"></i>
+        <span id="saveStatus">Lokal gespeichert</span>
+      </span>
+    </div>
+  </section>
+
+      
       <div class="toolbar">
         <button class="btn secondary small" id="addPlayer">＋ Spieler</button>
         <button class="btn secondary small" id="exportBtn">↓ Export</button>
         <button class="btn secondary small" id="importBtn">↑ Import</button>
         <button class="btn ghost small" id="resetBtn">Zurücksetzen</button>
       </div>
+
 
       <input id="importFile" type="file" accept="application/json,.json" hidden>
 
@@ -867,14 +869,6 @@ function commit() {
  if(historyStack.length>40) historyStack.shift();
  save();
  render();
-}
-
-function undo() {
- if(!historyStack.length) return;
- state=historyStack.pop();
- save();
- render();
- toast('Letzte Änderung rückgängig');
 }
 
 function esc(s) {
