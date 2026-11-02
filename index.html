@@ -910,8 +910,6 @@ function done(p) {
 
 function render() {
 
- $('undoBtn').disabled=!historyStack.length;
-
  $('playersEdit').innerHTML=state.players.map(p=>
   `<span class="player-chip">
    ${esc(p.name)}
@@ -1087,8 +1085,6 @@ $('clearScore').onclick=()=>{
  commit();
  closeModal();
 };
-
-$('undoBtn').onclick=undo;
 
 $('playersEdit').addEventListener('click',e=>{
  const r=e.target.closest('[data-rename]');
