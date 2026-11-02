@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -13,691 +12,216 @@
 <link rel="manifest" href="manifest.json">
 
 <script>
+// Darstellung gilt für alle Seiten (overall-theme), vor dem ersten Rendern setzen. Standard: hell.
 (function () {
   var t = 'light';
-  try {
-    t = localStorage.getItem('overall-theme') ||
-        localStorage.getItem('dash-theme') || 'light';
-  } catch (e) {}
+  try { t = localStorage.getItem('overall-theme') || localStorage.getItem('dash-theme') || 'light'; } catch (e) {}
   document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
 
 <style>
-
+/* QuicKniff – Apple-Designsprache wie Dashboard und die anderen Apps.
+   Akzent --p1 = App-Farbe von QuicKniff (Ziegelrot, passend zum Würfel-Icon).
+   Hauptregel: Der Spielzettel füllt am Handy genau einen Bildschirm, ohne Scrollen. */
 :root {
-  --bg: #f2f2f7;
-  --card: #fff;
-  --well: #f2f2f7;
-  --hover: #e9e9ef;
-  --line: #e2e2e7;
-  --sep: rgba(60, 60, 67, .14);
-  --ink: #1c1c1e;
-  --text: #3a3a3c;
-  --mute: #6c6c70;
-  --p1: #e11d48;
-  --p1-soft: #ffe4ea;
-  --on-p1: #fff;
-  --stage: #f7f7fa;
-  --grid: #d8d8de;
-  --radius: 18px;
-  --radius-s: 12px;
-  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 14px rgba(0,0,0,.04);
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "SF Pro", system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --bg: #f2f2f7; --card: #fff; --well: #f2f2f7; --hover: #e9e9ef; --line: #e2e2e7; --sep: rgba(60, 60, 67, .14);
+  --ink: #1c1c1e; --text: #3a3a3c; --mute: #6c6c70;
+  --p1: #a63a32; --p1-soft: #f7e4e1; --on-p1: #fff;
+  --radius: 18px; --radius-s: 12px; --shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 4px 14px rgba(0, 0, 0, .04);
+  --shadow-pop: 0 10px 40px rgba(0, 0, 0, .18);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --hdr: 57px;
+  --gap: 12px;
 }
-
 [data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #000;
-  --card: #1c1c1e;
-  --well: #2c2c2e;
-  --hover: #3a3a3c;
-  --line: #38383a;
-  --sep: rgba(84,84,88,.55);
-  --ink: #f5f5f7;
-  --text: #d1d1d6;
-  --mute: #98989f;
-  --p1: #ff375f;
-  --p1-soft: #3a0f1a;
-  --on-p1: #fff;
-  --stage: #121214;
-  --grid: #3a3a3e;
-  --shadow: none;
+  color-scheme: dark; --bg: #000; --card: #1c1c1e; --well: #2c2c2e; --hover: #3a3a3c; --line: #38383a; --sep: rgba(84, 84, 88, .55);
+  --ink: #f5f5f7; --text: #d1d1d6; --mute: #98989f; --p1: #e5695d; --p1-soft: #3a1512; --on-p1: #1a0604;
+  --shadow: none; --shadow-pop: 0 10px 40px rgba(0, 0, 0, .6);
 }
 
 * { box-sizing: border-box; }
-
-html {
-  background: var(--bg);
-  -webkit-text-size-adjust: 100%;
-}
-
+html { background: var(--bg); -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0;
-  min-height: 100vh;
-  -webkit-tap-highlight-color: transparent;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 14px;
-  line-height: 1.45;
-  letter-spacing: -.005em;
-  -webkit-font-smoothing: antialiased;
+  margin: 0; min-height: 100vh; -webkit-tap-highlight-color: transparent;
+  background: var(--bg); color: var(--text); font-family: var(--font);
+  font-size: 15px; line-height: 1.45; letter-spacing: -.005em; -webkit-font-smoothing: antialiased;
 }
-
-button {
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-}
-
-:focus-visible {
-  outline: 2px solid var(--p1);
-  outline-offset: 2px;
-}
-
-.ic {
-  width: 18px;
-  height: 18px;
-  flex: none;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+::selection { background: var(--p1-soft); color: var(--ink); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--p1); outline-offset: 2px; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 .wrap {
-  max-width: 1080px;
-  margin: 0 auto;
+  max-width: 720px; margin: 0 auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0 0 auto;
-  height: env(safe-area-inset-top, 0px);
-  z-index: 30;
-  background: var(--bg);
-}
-
+/* Kopfzeile wie in allen Apps */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
 header {
-  position: sticky;
-  top: env(safe-area-inset-top, 0px);
-  z-index: 20;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   background: color-mix(in srgb, var(--bg) 82%, transparent);
-  -webkit-backdrop-filter: saturate(1.8) blur(18px);
-  backdrop-filter: saturate(1.8) blur(18px);
+  -webkit-backdrop-filter: saturate(1.8) blur(18px); backdrop-filter: saturate(1.8) blur(18px);
   border-bottom: 1px solid var(--sep);
 }
-
-.bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-block: 10px;
-}
-
-.logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  flex: none;
-  display: block;
-}
-
-.head {
-  flex: 1;
-  min-width: 0;
-}
-
-h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -.02em;
-  color: var(--ink);
-  line-height: 1.15;
-}
-
-.sub {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--mute);
-}
-
+.bar { display: flex; align-items: center; gap: 12px; height: var(--hdr); }
+.logo { width: 36px; height: 36px; border-radius: 9px; flex: none; display: block; }
+.head { flex: 1; min-width: 0; }
+h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: var(--ink); line-height: 1.15; }
+.sub { font-size: 12px; font-weight: 500; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .icon-btn {
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  display: inline-grid;
-  place-items: center;
-  padding: 0;
-  color: var(--ink);
-  flex: none;
+  width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--card); box-shadow: var(--shadow);
+  display: inline-grid; place-items: center; padding: 0; color: var(--ink); flex: none;
 }
-
 .icon-btn:hover { background: var(--hover); }
 
-main {
-  display: grid;
-  gap: 12px;
-  padding-block: 16px calc(40px + env(safe-area-inset-bottom, 0px));
+main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env(safe-area-inset-bottom, 0px)); }
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; min-width: 0; }
+
+/* ===== Spielzettel =====
+   Raster statt Tabelle: Spalten teilen sich die Breite, Zeilen teilen sich die Höhe.
+   Die Karte ist genau so hoch wie der freie Bildschirm unter der Kopfzeile. */
+.sheet-card {
+  padding: 6px;
+  height: calc(100svh - var(--hdr) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2 * var(--gap));
+  height: calc(100dvh - var(--hdr) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2 * var(--gap));
+  min-height: 420px; max-height: 860px;
 }
-
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 14px 16px;
-  min-width: 0;
+.sheet {
+  --cols: 2; --labw: 1.5fr;
+  display: grid; height: 100%;
+  grid-template-columns: minmax(84px, var(--labw)) repeat(var(--cols), minmax(0, 1fr));
+  /* Kopf + 6 oben + Bonus + 7 unten + Zusatz + Gesamt = 17 Zeilen */
+  grid-template-rows: minmax(0, 1.1fr) repeat(15, minmax(0, 1fr)) minmax(0, 1.2fr);
+  font-variant-numeric: tabular-nums;
 }
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+.sheet .tr { display: contents; }
+.c {
+  display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0;
+  border-bottom: 1px solid var(--sep); padding: 0 2px; font-size: 15px; color: var(--ink);
 }
+.c.lab { justify-content: flex-start; gap: 8px; padding-left: 8px; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; }
+.c.lab span { overflow: hidden; text-overflow: ellipsis; }
+.tr.split .c { border-bottom: 2px solid var(--line); }
+.tr:nth-last-child(2) .c { border-bottom: 0; }
 
-.spacer { flex: 1; }
+/* Viele Spieler: Kategorien-Spalte enger */
+.sheet.many .c.lab { gap: 5px; padding-left: 4px; font-size: 13px; }
+.sheet.many .die { width: 15px; height: 15px; }
 
+/* Spaltenköpfe: Spielernamen, antippen öffnet die Spieler-Aktionen */
+.name {
+  width: 100%; height: 100%; border: 0; background: none; padding: 0 2px; border-radius: 9px;
+  font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.name:hover { background: var(--well); }
+.name.lead { color: var(--p1); }
+.c.corner { font-size: 12px; font-weight: 600; color: var(--mute); }
+
+/* Würfelaugen als Symbol für den oberen Block */
+.die { width: 18px; height: 18px; flex: none; color: var(--mute); }
+.die rect { fill: none; stroke: currentColor; stroke-width: 1.6; }
+.die circle { fill: currentColor; }
+
+/* Punktefelder */
+.cell {
+  width: calc(100% - 4px); height: calc(100% - 4px); border: 0; border-radius: 8px; padding: 0;
+  background: transparent; color: var(--ink); font-weight: 600; font-size: 16px;
+}
+.cell:hover { background: var(--well); }
+.cell.empty::after { content: ""; display: block; width: 4px; height: 4px; margin: auto; border-radius: 50%; background: var(--line); }
+.cell.zero { color: var(--mute); font-weight: 400; }
+.cell:active { background: var(--p1-soft); }
+
+.calc { font-size: 13px; font-weight: 600; color: var(--mute); }
+.calc.ok { color: var(--p1); }
+.calc small { font-size: 11px; font-weight: 500; }
+
+/* Gesamtzeile: das eine laute Element der Seite */
+.tr.total .c { background: var(--p1); color: var(--on-p1); font-weight: 700; font-size: 17px; border: 0; }
+.tr.total .c.lab { color: var(--on-p1); font-size: 14px; border-radius: 12px 0 0 12px; }
+.tr.total .c:last-child { border-radius: 0 12px 12px 0; }
+
+/* ===== Unter dem Spielzettel ===== */
+.card-title { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--mute); }
+.scoreboard { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.scoreline { display: flex; justify-content: space-between; gap: 12px; color: var(--text); }
+.scoreline strong { color: var(--ink); }
+.scoreline.lead, .scoreline.lead strong { color: var(--p1); }
+
+.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 38px;
-  padding: 0 13px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--p1);
-  color: var(--on-p1);
-  font-weight: 600;
-  font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 16px;
+  border: 0; border-radius: 12px; background: var(--p1); color: var(--on-p1); font-weight: 600; font-size: 15px;
 }
-
 .btn:hover { filter: brightness(1.06); }
+.btn.secondary { background: var(--well); color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--mute); }
+.btn.danger { background: var(--well); color: var(--p1); }
+.btn .ic { width: 17px; height: 17px; }
+.note { margin: 12px 0 0; font-size: 13px; color: var(--mute); }
 
-.btn.secondary {
-  background: var(--well);
-  color: var(--ink);
-}
-
-.btn.ghost {
-  background: transparent;
-  color: var(--mute);
-}
-
-.btn.small {
-  min-height: 32px;
-  padding: 0 10px;
-  font-size: 12px;
-}
-
-.status {
-  font-size: 11px;
-  color: var(--mute);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #30b66f;
-}
-
-.game-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.game-head h2 {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mute);
-}
-
-.players-edit {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-left: auto;
-}
-
-.player-chip {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  background: var(--well);
-  border-radius: 9px;
-  font-size: 12px;
-  color: var(--ink);
-}
-
-.player-chip button {
-  border: 0;
-  background: none;
-  color: var(--mute);
-  padding: 0 2px;
-  font-size: 14px;
-}
-
-/* =========================================
-   K-TABELLE
-   Vollständige Breite ohne horizontales Scrollen
-   ========================================= */
-
-.table-scroll {
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-}
-
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: 100%;
-  min-width: 0;
-  table-layout: fixed;
-  font-variant-numeric: tabular-nums;
-}
-
-th, td {
-  padding: 8px 6px;
-  text-align: center;
-  border-bottom: 1px solid var(--sep);
-  border-right: 1px solid var(--sep);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-tr:last-child td { border-bottom: 0; }
-
-th:last-child, td:last-child { border-right: 0; }
-
-thead th {
-  position: sticky;
-  top: 0;
-  background: var(--well);
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 700;
-  z-index: 2;
-}
-
-th:first-child,
-td:first-child {
-  position: sticky;
-  left: 0;
-  text-align: left;
-  z-index: 3;
-  background: var(--card);
-  width: 34%;
-  min-width: 0;
-}
-
-thead th:first-child {
-  z-index: 4;
-  background: var(--well);
-}
-
-th.player-col {
-  width: calc(66% / var(--player-count, 2));
-  min-width: 0;
-}
-
-.player-total {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--p1);
-}
-
-.section-row td {
-  background: var(--well) !important;
-  color: var(--mute);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  padding: 6px 9px;
-}
-
-.score-cell {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  min-height: 30px;
-  padding: 4px 2px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--ink);
-  font-weight: 600;
-  overflow: hidden;
-}
-
-.score-cell:hover { background: var(--well); }
-
-.score-cell.empty {
-  color: var(--mute);
-  font-weight: 400;
-}
-
-.score-cell.filled {
-  background: var(--p1-soft);
-  color: var(--p1);
-}
-
-.calc-row td {
-  background: color-mix(in srgb, var(--well) 65%, var(--card));
-  font-weight: 600;
-}
-
-.calc-row td:first-child { background: var(--well); }
-
-.total-row td {
-  background: var(--p1-soft);
-  font-weight: 700;
-  color: var(--p1);
-  font-size: 14px;
-}
-
-.total-row td:first-child { background: var(--p1-soft); }
-
-.bonus-control {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.bonus-control b {
-  white-space: nowrap;
-  font-size: 11px;
-}
-
-.bonus-control button {
-  flex: none;
-  border: 0;
-  border-radius: 7px;
-  background: var(--well);
-  padding: 3px 6px;
-  color: var(--ink);
-  font-size: 11px;
-}
-
-.bonus-control button:disabled {
-  opacity: .35;
-  cursor: not-allowed;
-}
-
-.note {
-  margin: 8px 0 0;
-  font-size: 11px;
-  color: var(--mute);
-}
-
-.bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-@media (max-width: 820px) {
-  .bottom-grid { grid-template-columns: 1fr; }
-}
-
-.card-title {
-  margin: 0 0 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mute);
-}
-
-.scoreboard {
-  display: grid;
-  gap: 8px;
-}
-
-.scoreline {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--text);
-}
-
-.scoreline strong {
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.winner { color: var(--p1) !important; }
-
-/* Modal */
-
+/* ===== Auswahl als Blatt von unten ===== */
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(0,0,0,.32);
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 16px;
+  position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .32);
+  display: none; align-items: flex-end; justify-content: center;
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
 }
-
 .modal-backdrop.open { display: flex; }
-
 .modal {
-  width: min(100%, 420px);
-  background: var(--card);
-  border-radius: 20px;
-  padding: 18px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.22);
-  max-height: 85vh;
-  overflow: auto;
+  width: min(100%, 440px); background: var(--card); border-radius: 22px; padding: 18px;
+  box-shadow: var(--shadow-pop); max-height: 85vh; overflow: auto;
+  animation: up .28s cubic-bezier(.2, .9, .3, 1);
 }
-
-.modal h3 {
-  margin: 0 0 4px;
-  color: var(--ink);
-  font-size: 17px;
-}
-
-.modal-sub {
-  color: var(--mute);
-  font-size: 12px;
-  margin-bottom: 14px;
-}
-
-.choice-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
+@keyframes up { from { transform: translateY(24px); opacity: .6; } }
+.modal h3 { margin: 0 0 2px; color: var(--ink); font-size: 18px; }
+.modal-sub { color: var(--mute); font-size: 13px; margin-bottom: 14px; }
+.choice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.choice-grid.many { grid-template-columns: repeat(5, 1fr); }
 .choice {
-  min-height: 48px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--well);
-  font-weight: 700;
-  color: var(--ink);
+  min-height: 52px; border: 1px solid var(--line); border-radius: 12px; background: var(--well);
+  font-weight: 700; font-size: 17px; color: var(--ink); line-height: 1.1;
 }
-
+.choice small { display: block; font-size: 11px; font-weight: 500; color: var(--mute); }
 .choice.zero { color: var(--mute); }
-
-.choice:active {
-  background: var(--p1-soft);
-  border-color: var(--p1);
-  color: var(--p1);
-}
-
-.modal-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 14px;
-}
-
+.choice.on { background: var(--p1-soft); border-color: var(--p1); color: var(--p1); }
+.choice:active { background: var(--p1-soft); border-color: var(--p1); color: var(--p1); }
+.modal-actions { display: flex; gap: 8px; margin-top: 14px; }
 .modal-actions > * { flex: 1; }
-
-/* Toast */
+.modal-actions [hidden] { display: none; }
 
 .toast {
-  position: fixed;
-  left: 50%;
-  bottom: calc(18px + env(safe-area-inset-bottom));
-  transform: translate(-50%, 20px);
-  opacity: 0;
-  pointer-events: none;
-  background: var(--ink);
-  color: var(--bg);
-  padding: 9px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  z-index: 80;
-  transition: .2s;
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+  opacity: 0; pointer-events: none; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px;
+  font-size: 13px; z-index: 80; transition: .2s;
 }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-.toast.show {
-  opacity: 1;
-  transform: translate(-50%, 0);
+/* Schmale Handys: Kategorien-Spalte und Schrift etwas kompakter */
+@media (max-width: 380px) {
+  .sheet { grid-template-columns: minmax(78px, var(--labw)) repeat(var(--cols), minmax(0, 1fr)); }
+  .c.lab { padding-left: 6px; gap: 6px; font-size: 13px; }
+  .cell { font-size: 15px; }
+  .name { font-size: 12px; }
 }
-
-/* =========================================
-   MOBILE
-   Tabelle passt sich vollständig an
-   ========================================= */
-
-@media(max-width: 600px) {
-
-  .card {
-    padding: 10px 12px;
-  }
-
-  th, td {
-    padding: 4px 2px;
-    font-size: 10px;
-  }
-
-  thead th {
-    font-size: 10px;
-    padding: 5px 2px;
-  }
-
-  /* Kategorien-Spalte */
-  th:first-child,
-  td:first-child {
-    width: 32%;
-    min-width: 0;
-  }
-
-  /* Spieler teilen sich die restliche Breite */
-  th.player-col {
-    width: calc(68% / var(--player-count, 2));
-    min-width: 0;
-  }
-
-  /* Punktefelder */
-  .score-cell {
-    width: 100%;
-    min-width: 0;
-    min-height: 28px;
-    padding: 2px 0;
-    font-size: 11px;
-  }
-
-  .section-row td {
-    padding: 3px 4px;
-    font-size: 8px;
-  }
-
-  .calc-row td,
-  .total-row td {
-    font-size: 10px;
-  }
-
-  .bonus-control {
-    gap: 2px;
-  }
-
-  .bonus-control b {
-    font-size: 9px;
-  }
-
-  .bonus-control button {
-    padding: 2px 3px;
-    font-size: 9px;
-  }
+/* Niedrige Bildschirme (z. B. iPhone SE): Zellen etwas kleiner */
+@media (max-height: 700px) {
+  .cell { font-size: 14px; }
+  .c.lab { font-size: 13px; }
+  .die { width: 16px; height: 16px; }
 }
-
-/* Sehr schmale Smartphones */
-@media(max-width: 380px) {
-
-  th, td {
-    padding-left: 1px;
-    padding-right: 1px;
-    font-size: 9px;
-  }
-
-  th:first-child,
-  td:first-child {
-    width: 30%;
-  }
-
-  th.player-col {
-    width: calc(70% / var(--player-count, 2));
-  }
-
-  .score-cell {
-    font-size: 10px;
-  }
-
-  .bonus-control {
-    gap: 1px;
-
-
-  }
-
-  .bonus-control b {
-    font-size: 8px;
-  }
-
-  .bonus-control button {
-    padding: 2px;
-    font-size: 8px;
-  }
+/* Querformat am Handy: zu niedrig für ein Blatt, dann darf gescrollt werden */
+@media (orientation: landscape) and (max-height: 500px) {
+  .sheet-card { height: auto; min-height: 0; }
+  .sheet { grid-template-rows: 40px repeat(15, 36px) 44px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  * {
-    scroll-behavior: auto !important;
-    transition: none !important;
-  }
+  * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -707,11 +231,8 @@ th.player-col {
       <h1>QuicKniff</h1>
       <div class="sub">Der schnelle digitale Kniff-Block</div>
     </div>
-    <button class="icon-btn" id="themeBtn" type="button"
-      aria-label="Hell oder dunkel" title="Hell / Dunkel">
-      <svg class="ic" viewBox="0 0 24 24">
-        <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>
-      </svg>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Hell oder dunkel" title="Hell / Dunkel">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
     </button>
   </div>
 </header>
@@ -719,76 +240,47 @@ th.player-col {
 <div class="wrap">
 <main>
 
-  <section class="card">
-    <div class="game-head">
-      <h2 id="gameTitle">Aktuelle Partie</h2>
-      <div class="players-edit" id="playersEdit"></div>
-    </div>
-
-    <div class="table-scroll" id="tableScroll">
-      <table id="scoreTable" aria-label="Spielzettel"></table>
-    </div>
-
-    <p class="note">
-      Tipp: Feld antippen, Punkte auswählen. Ein ausgefülltes Feld kann jederzeit geändert werden.
-    </p>
+  <section class="card sheet-card" aria-label="Spielzettel">
+    <div class="sheet" id="sheet" role="table" aria-label="Spielzettel"></div>
   </section>
 
-  <div class="bottom-grid">
+  <section class="card">
+    <h2 class="card-title" id="boardTitle">Spielstand</h2>
+    <ol class="scoreboard" id="scoreboard"></ol>
+  </section>
 
-    <section class="card">
-      <h2 class="card-title">Spielstand</h2>
-      <div class="scoreboard" id="scoreboard"></div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Spieloptionen</h2>
-
-      
+  <section class="card">
+    <h2 class="card-title">Partie</h2>
     <div class="toolbar">
-      <button class="btn" id="newGame">＋ Neues Spiel</button>
-      <span class="spacer"></span>
-      <span class="status">
-        <i class="dot"></i>
-        <span id="saveStatus">Lokal gespeichert</span>
-      </span>
+      <button class="btn" id="newGame" type="button">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Neues Spiel
+      </button>
+      <button class="btn secondary" id="addPlayer" type="button">Spieler hinzufügen</button>
     </div>
-
-<div class="toolbar" style="margin-top: 12px;">
-    <button class="btn secondary small" id="addPlayer">＋ Spieler</button>
-    <button class="btn secondary small" id="exportBtn">↓ Export</button>
-    <button class="btn secondary small" id="importBtn">↑ Import</button>
-    <button class="btn ghost small" id="resetBtn">Zurücksetzen</button>
-  </div>
-
-
-      <input id="importFile" type="file" accept="application/json,.json" hidden>
-
-      <p class="note">
-        Dein Spielstand bleibt auf diesem Gerät und in diesem Browser gespeichert. Exportiere gelegentlich eine Sicherung.
-      </p>
-    </section>
-
-  </div>
+    <div class="toolbar" style="margin-top:8px">
+      <button class="btn ghost" id="exportBtn" type="button">Sicherung speichern</button>
+      <button class="btn ghost" id="importBtn" type="button">Sicherung laden</button>
+    </div>
+    <input id="importFile" type="file" accept="application/json,.json" hidden>
+    <p class="note">Feld antippen, um Punkte einzutragen. Namen antippen, um Spieler umzubenennen oder zu entfernen. Der Spielstand bleibt auf diesem Gerät gespeichert.</p>
+  </section>
 
 </main>
 </div>
 
-<div class="modal-backdrop" id="modalBackdrop"
-  role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal">
-    <h3 id="modalTitle">Punkte auswählen</h3>
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle"></h3>
     <div class="modal-sub" id="modalSub"></div>
     <div id="modalContent"></div>
-
     <div class="modal-actions">
-      <button class="btn secondary" id="cancelModal">Abbrechen</button>
-      <button class="btn ghost" id="clearScore">Feld leeren</button>
+      <button class="btn secondary" id="cancelModal" type="button">Abbrechen</button>
+      <button class="btn danger" id="clearScore" type="button">Feld leeren</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 (() => {
@@ -802,18 +294,19 @@ const CATS = [
  {id:'fours',name:'Vierer',type:'upper',face:4},
  {id:'fives',name:'Fünfer',type:'upper',face:5},
  {id:'sixes',name:'Sechser',type:'upper',face:6},
- {id:'threeKind',name:'Dreierpasch',type:'sum'},
- {id:'fourKind',name:'Viererpasch',type:'sum'},
+ {id:'threeKind',name:'Dreierpasch',short:'3er-Pasch',type:'sum'},
+ {id:'fourKind',name:'Viererpasch',short:'4er-Pasch',type:'sum'},
  {id:'fullHouse',name:'Full House',type:'fixed',points:25},
- {id:'smallStraight',name:'Kleine Straße',type:'fixed',points:30},
- {id:'largeStraight',name:'Große Straße',type:'fixed',points:40},
+ {id:'smallStraight',name:'Kleine Straße',short:'Kl. Straße',type:'fixed',points:30},
+ {id:'largeStraight',name:'Große Straße',short:'Gr. Straße',type:'fixed',points:40},
  {id:'kniff',name:'Kniff',type:'fixed',points:50},
  {id:'chance',name:'Chance',type:'sum'}
 ];
+const EXTRA = {id:'extra',name:'Zusatz-Kniff'};
 
 const STORAGE = 'quickniff-state-v1';
 
-let state, activeCell = null;
+let state, active = null, lastFocus = null;
 
 const blankPlayer = name => ({
  id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
@@ -823,12 +316,7 @@ const blankPlayer = name => ({
 });
 
 function fresh(names=['Spieler 1','Spieler 2']) {
- return {
-  version:1,
-  createdAt:new Date().toISOString(),
-  players:names.map(blankPlayer),
-  finished:false
- };
+ return { version:1, createdAt:new Date().toISOString(), players:names.map(blankPlayer), finished:false };
 }
 
 function normalize(x) {
@@ -861,398 +349,238 @@ function load() {
 state = load();
 
 function save() {
- try {
-  localStorage.setItem(STORAGE,JSON.stringify(state));
-  $('saveStatus').textContent='Gespeichert · gerade eben';
- } catch(e) {
-  $('saveStatus').textContent='Speichern fehlgeschlagen';
- }
+ try { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+ catch(e) { toast('Speichern fehlgeschlagen'); }
 }
 
-function commit() {
- save();
- render();
-}
+function commit() { save(); render(); }
 
 function esc(s) {
- return String(s).replace(/[&<>"']/g,c=>({
-  '&':'&amp;',
-  '<':'&lt;',
-  '>':'&gt;',
-  '"':'&quot;',
-  "'":'&#39;'
- }[c]));
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function score(p,id) {
- return Object.prototype.hasOwnProperty.call(p.scores,id)
-  ? p.scores[id] : null;
+const score = (p,id) => Object.prototype.hasOwnProperty.call(p.scores,id) ? p.scores[id] : null;
+const upper = p => CATS.filter(c=>c.type==='upper').reduce((n,c)=>n+(score(p,c.id)||0),0);
+const upperBonus = p => upper(p)>=63 ? 35 : 0;
+const extraPts = p => score(p,'kniff')===50 ? p.extraKniff*50 : 0;
+const lower = p => CATS.filter(c=>c.type!=='upper').reduce((n,c)=>n+(score(p,c.id)||0),0) + extraPts(p);
+const total = p => upper(p)+upperBonus(p)+lower(p);
+const done = p => CATS.every(c=>score(p,c.id)!==null);
+
+// Würfelaugen als SVG (statt Unicode-Würfelzeichen)
+const PIPS = {1:[[12,12]],2:[[8,8],[16,16]],3:[[7.5,7.5],[12,12],[16.5,16.5]],4:[[8,8],[16,8],[8,16],[16,16]],
+ 5:[[7.5,7.5],[16.5,7.5],[12,12],[7.5,16.5],[16.5,16.5]],6:[[8,7],[8,12],[8,17],[16,7],[16,12],[16,17]]};
+const die = n => `<svg class="die" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/>${PIPS[n].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.9"/>`).join('')}</svg>`;
+
+// Wer führt? Nur bei echtem Vorsprung.
+function leaderId() {
+ const s = state.players.map(p=>({id:p.id,t:total(p)})).sort((a,b)=>b.t-a.t);
+ return s[0].t>0 && (s.length<2 || s[1].t<s[0].t) ? s[0].id : null;
 }
 
-function upper(p) {
- return CATS.filter(c=>c.type==='upper')
-  .reduce((n,c)=>n+(score(p,c.id)||0),0);
-}
-
-function upperBonus(p) {
- return upper(p)>=63 ? 35 : 0;
-}
-
-function lower(p) {
- return CATS.filter(c=>c.type!=='upper')
-  .reduce((n,c)=>n+(score(p,c.id)||0),0)+(score(p,'kniff')===50?p.extraKniff*50:0);
-}
-
-function total(p) {
- return upper(p)+upperBonus(p)+lower(p);
-}
-
-function done(p) {
- return CATS.every(c=>score(p,c.id)!==null);
+function cellBtn(p, c) {
+ const isExtra = c.id==='extra';
+ const v = isExtra ? (score(p,'kniff')===50 ? p.extraKniff : null) : score(p,c.id);
+ const label = isExtra ? (v===null ? 'erst nach einem Kniff möglich' : v+' mal 50 Punkte') : (v===null ? 'leer' : v===0 ? 'gestrichen' : v+' Punkte');
+ const shown = isExtra ? (v ? '+'+v*50 : '') : (v===null ? '' : v===0 ? '–' : v);
+ const cls = (v===null || (isExtra && !v)) ? 'empty' : v===0 ? 'zero' : 'filled';
+ const dis = isExtra && v===null ? ' disabled' : '';
+ return `<div class="c" role="cell"><button type="button" class="cell ${cls}" data-cell="${p.id}|${c.id}" aria-label="${esc(p.name)}, ${c.name}: ${label}"${dis}>${shown}</button></div>`;
 }
 
 function render() {
+ const P = state.players, lead = leaderId();
+ const sheet = $('sheet');
+ sheet.style.setProperty('--cols', P.length);
+ sheet.style.setProperty('--labw', P.length>3 ? '1fr' : '1.5fr'); // viele Spieler: Namen bekommen mehr Platz
+ sheet.classList.toggle('many', P.length>3);
+ const row = (cls, html) => `<div class="tr ${cls||''}" role="row">${html}</div>`;
+ const lab = (inner, title) => `<div class="c lab" role="rowheader" title="${esc(title)}">${inner}</div>`;
+ let h = row('', `<div class="c corner" role="columnheader">Spieler</div>` + P.map(p=>
+  `<div class="c" role="columnheader"><button type="button" class="name ${p.id===lead?'lead':''}" data-player="${p.id}" aria-label="${esc(p.name)}: Spieler bearbeiten">${esc(p.name)}</button></div>`).join(''));
+ CATS.filter(c=>c.type==='upper').forEach(c=>{
+  h += row('', lab(`${die(c.face)}<span>${c.name}</span>`, c.name) + P.map(p=>cellBtn(p,c)).join(''));
+ });
+ h += row('split', lab('<span>Bonus</span>', 'Bonus: +35 ab 63 Punkten im oberen Block') + P.map(p=>{
+  const u = upper(p);
+  return `<div class="c" role="cell"><span class="calc ${u>=63?'ok':''}">${u>=63 ? '+35' : `${u}<small>/63</small>`}</span></div>`;
+ }).join(''));
+ CATS.filter(c=>c.type!=='upper').forEach(c=>{
+  h += row('', lab(`<span>${c.short||c.name}</span>`, c.name) + P.map(p=>cellBtn(p,c)).join(''));
+ });
+ h += row('', lab('<span>Zusatz</span>', 'Zusatz-Kniff: je +50 Punkte, sobald ein Kniff eingetragen ist') + P.map(p=>cellBtn(p,EXTRA)).join(''));
+ h += row('total', lab('<span>Gesamt</span>', 'Gesamt') + P.map(p=>`<div class="c" role="cell">${total(p)}</div>`).join(''));
+ sheet.innerHTML = h;
 
- $('playersEdit').innerHTML=state.players.map(p=>
-  `<span class="player-chip">
-   ${esc(p.name)}
-   <button data-rename="${p.id}" title="Name ändern" aria-label="Name ändern">✎</button>
-   ${state.players.length>1
-    ?`<button data-remove="${p.id}" title="Spieler entfernen" aria-label="Spieler entfernen">×</button>`:''}
-  </span>`
- ).join('');
-
- const rows=[];
-
- rows.push(`<thead><tr>
-  <th>Kategorie</th>
-  ${state.players.map(p=>
-   `<th class="player-col">${esc(p.name)}</th>`
-  ).join('')}
- </tr></thead><tbody>`);
-
- rows.push(`<tr class="section-row">
-  <td colspan="${state.players.length+1}">Oberer Block</td>
- </tr>`);
-
- CATS.filter(c=>c.type==='upper')
-  .forEach(c=>rows.push(row(c)));
-
- rows.push(`<tr class="calc-row">
-  <td>Zwischensumme</td>
-  ${state.players.map(p=>`<td>${upper(p)}</td>`).join('')}
- </tr>`);
-
- rows.push(`<tr class="calc-row">
-  <td>Bonus ab 63 Punkten</td>
-  ${state.players.map(p=>
-   `<td>${upperBonus(p)?'<strong>+35</strong>':'–'}</td>`
-  ).join('')}
- </tr>`);
-
- rows.push(`<tr class="section-row">
-  <td colspan="${state.players.length+1}">Unterer Block</td>
- </tr>`);
-
- CATS.filter(c=>c.type!=='upper')
-  .forEach(c=>rows.push(row(c)));
-
- rows.push(`<tr>
-  <td>Zusatz-Kniff</td>
-  ${state.players.map(p=>`
-   <td>
-    <div class="bonus-control">
-     <button data-extra="${p.id}"
-      ${score(p,'kniff')===50&&p.extraKniff>0?'':'disabled'}
-      aria-label="Zusatz-Kniff abziehen">−</button>
-     <b>${p.extraKniff} × 50</b>
-     <button data-extra-add="${p.id}"
-      ${score(p,'kniff')===50?'':'disabled'}
-      aria-label="Zusatz-Kniff hinzufügen">＋</button>
-    </div>
-   </td>
-  `).join('')}
- </tr>`);
-
- rows.push(`<tr class="total-row">
-  <td>Gesamt</td>
-  ${state.players.map(p=>`<td>${total(p)}</td>`).join('')}
- </tr></tbody>`);
-
- $('scoreTable').style.setProperty('--player-count',state.players.length);
- $('scoreTable').innerHTML=rows.join('');
-
- $('scoreboard').innerHTML=state.players
-  .slice()
-  .sort((a,b)=>total(b)-total(a))
-  .map((p,i,arr)=>{ const lead=i===0&&total(p)>0&&(arr.length<2||total(arr[1])<total(p)); return `
-   <div class="scoreline">
-    <span class="${lead?'winner':''}">
-     ${lead?'🏆 ':''}${esc(p.name)}${done(p)?' · fertig':''}
-    </span>
-    <strong class="${lead?'winner':''}">${total(p)} Pkt.</strong>
-   </div>
-  `;}).join('');
-
- $('gameTitle').textContent=
-  state.players.every(done)?'Partie abgeschlossen':'Aktuelle Partie';
+ const finished = P.every(done);
+ $('boardTitle').textContent = finished ? 'Partie beendet' : 'Spielstand';
+ $('scoreboard').innerHTML = P.slice().sort((a,b)=>total(b)-total(a)).map(p=>
+  `<li class="scoreline ${p.id===lead?'lead':''}"><span>${esc(p.name)}${p.id===lead?(finished?' gewinnt':' führt'):''}${done(p)&&!finished?' ist fertig':''}</span><strong>${total(p)} Punkte</strong></li>`).join('');
 }
 
-function row(c) {
- return `<tr>
-  <td>${c.name}</td>
-  ${state.players.map(p=>{
-   const v=score(p,c.id);
-   return `<td>
-    <button class="score-cell ${v===null?'empty':'filled'}"
-     data-score="${p.id}|${c.id}"
-     aria-label="${esc(p.name)} ${c.name}: ${v===null?'Punkte eintragen':v+' Punkte'}">
-     ${v===null?'＋':v}
-    </button>
-   </td>`;
-  }).join('')}
- </tr>`;
-}
-
+/* ---------- Auswahlblatt ---------- */
 function options(c) {
- if(c.type==='upper') {
-  return [0,...Array.from({length:5},(_,i)=>(i+1)*c.face)];
- }
- if(c.type==='fixed') {
-  return [0,c.points];
- }
- return Array.from({length:26},(_,i)=>i+5);
+ if(c.type==='upper') return [0,1,2,3,4,5].map(k=>({v:k*c.face, hint:k?k+'×':'streichen'}));
+ if(c.type==='fixed') return [{v:0,hint:'streichen'},{v:c.points,hint:''}];
+ if(c.id==='extra') return [0,1,2,3,4,5,6,7,8,9].map(k=>({v:k, label:k?'+'+k*50:'0', hint:k?k+'×':''}));
+ return [{v:0,hint:'streichen'}].concat(Array.from({length:26},(_,i)=>({v:i+5,hint:''})));
 }
 
-function openScore(pid,cid) {
- const p=state.players.find(x=>x.id===pid);
- const c=CATS.find(x=>x.id===cid);
- if(!p||!c) return;
-
- activeCell={pid,cid};
- $('modalTitle').textContent=c.name;
- $('modalSub').textContent='Punkte für '+p.name+' auswählen';
-
- $('modalContent').innerHTML=
-  '<div class="choice-grid">'+
-  options(c).map(n=>
-   `<button class="choice ${n===0?'zero':''}" data-choice="${n}">
-    ${n} ${n===0?'· streichen':'Pkt.'}
-   </button>`
-  ).join('')+
-  '</div>';
-
+function openModal(title, sub, content, canClear) {
+ lastFocus = document.activeElement;
+ $('modalTitle').textContent = title;
+ $('modalSub').textContent = sub;
+ $('modalContent').innerHTML = content;
+ $('clearScore').hidden = !canClear;
  $('modalBackdrop').classList.add('open');
+ const first = $('modalContent').querySelector('.choice.on') || $('modalContent').querySelector('button') || $('cancelModal');
+ first.focus();
+}
+
+function openScore(pid, cid) {
+ const p = state.players.find(x=>x.id===pid);
+ const c = cid==='extra' ? EXTRA : CATS.find(x=>x.id===cid);
+ if(!p || !c) return;
+ active = {type:'score', pid, cid};
+ const cur = cid==='extra' ? p.extraKniff : score(p,cid);
+ const opts = options(c);
+ const sub = p.name + (c.type==='upper' ? ': Wie viele '+c.name+'?' : c.id==='extra' ? ': Wie viele Zusatz-Kniffs? Je 50 Punkte.' : '');
+ openModal(c.name, sub,
+  `<div class="choice-grid ${opts.length>8?'many':''}">` + opts.map(o=>
+   `<button type="button" class="choice ${o.v===0?'zero':''} ${o.v===cur?'on':''}" data-choice="${o.v}">${o.label ?? (o.v===0?'–':o.v)}${o.hint?`<small>${o.hint}</small>`:''}</button>`).join('') + '</div>',
+  cid!=='extra' && cur!==null);
+}
+
+function openPlayer(pid) {
+ const p = state.players.find(x=>x.id===pid);
+ if(!p) return;
+ active = {type:'player', pid};
+ openModal(p.name, 'Spieler bearbeiten',
+  `<div class="toolbar"><button type="button" class="btn secondary" data-act="rename" style="flex:1">Umbenennen</button>` +
+  (state.players.length>1 ? `<button type="button" class="btn danger" data-act="remove" style="flex:1">Entfernen</button>` : '') + '</div>', false);
 }
 
 function closeModal() {
  $('modalBackdrop').classList.remove('open');
- activeCell=null;
+ active = null;
+ if(lastFocus && document.contains(lastFocus)) lastFocus.focus();
 }
 
 function toast(msg) {
- $('toast').textContent=msg;
+ $('toast').textContent = msg;
  $('toast').classList.add('show');
- setTimeout(()=>$('toast').classList.remove('show'),1800);
+ clearTimeout(toast.t);
+ toast.t = setTimeout(()=>$('toast').classList.remove('show'), 1800);
 }
 
-$('scoreTable').addEventListener('click',e=>{
- const b=e.target.closest('[data-score]');
- if(b) {
-  const [pid,cid]=b.dataset.score.split('|');
-  openScore(pid,cid);
- }
+$('sheet').addEventListener('click', e=>{
+ const b = e.target.closest('[data-cell]');
+ if(b) { const [pid,cid] = b.dataset.cell.split('|'); openScore(pid,cid); return; }
+ const n = e.target.closest('[data-player]');
+ if(n) openPlayer(n.dataset.player);
 });
 
-$('modalContent').addEventListener('click',e=>{
- const b=e.target.closest('[data-choice]');
- if(!b||!activeCell) return;
-
- const p=state.players.find(x=>x.id===activeCell.pid);
+$('modalContent').addEventListener('click', e=>{
+ if(!active) return;
+ const p = state.players.find(x=>x.id===active.pid);
  if(!p) return closeModal();
- p.scores[activeCell.cid]=Number(b.dataset.choice);
-
- commit();
- closeModal();
-});
-
-$('cancelModal').onclick=closeModal;
-
-document.addEventListener('keydown',e=>{
- if(e.key==='Escape'&&activeCell) closeModal();
-});
-
-$('modalBackdrop').addEventListener('click',e=>{
- if(e.target===$('modalBackdrop')) closeModal();
-});
-
-$('clearScore').onclick=()=>{
- if(!activeCell) return;
- const p=state.players.find(x=>x.id===activeCell.pid);
- if(!p) return closeModal();
- delete p.scores[activeCell.cid];
- commit();
- closeModal();
-};
-
-$('playersEdit').addEventListener('click',e=>{
- const r=e.target.closest('[data-rename]');
- if(r) {
-  const p=state.players.find(x=>x.id===r.dataset.rename);
-  const n=prompt('Neuer Spielername:',p.name);
-  if(n&&n.trim()) {
-   p.name=n.trim();
-   commit();
-  }
+ const b = e.target.closest('[data-choice]');
+ if(b && active.type==='score') {
+  const v = Number(b.dataset.choice);
+  if(active.cid==='extra') p.extraKniff = v; else p.scores[active.cid] = v;
+  closeModal(); commit();
+  if(state.players.every(done)) toast('Partie beendet');
   return;
  }
-
- const d=e.target.closest('[data-remove]');
- if(d) {
-  const p=state.players.find(x=>x.id===d.dataset.remove);
+ const a = e.target.closest('[data-act]');
+ if(a && a.dataset.act==='rename') {
+  const n = prompt('Neuer Name:', p.name);
+  if(n && n.trim()) { p.name = n.trim().slice(0,24); commit(); }
+  closeModal();
+ }
+ if(a && a.dataset.act==='remove') {
   if(confirm(p.name+' aus der Partie entfernen?')) {
-   state.players=state.players.filter(x=>x.id!==p.id);
-   commit();
+   state.players = state.players.filter(x=>x.id!==p.id); commit(); toast(p.name+' entfernt');
   }
+  closeModal();
  }
 });
 
-$('scoreTable').addEventListener('click',e=>{
- const add=e.target.closest('[data-extra-add]');
- const sub=e.target.closest('[data-extra]');
+$('cancelModal').onclick = closeModal;
+$('clearScore').onclick = ()=>{
+ if(!active || active.type!=='score') return;
+ const p = state.players.find(x=>x.id===active.pid);
+ if(p) { delete p.scores[active.cid]; commit(); }
+ closeModal();
+};
+$('modalBackdrop').addEventListener('click', e=>{ if(e.target===$('modalBackdrop')) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && active) closeModal(); });
 
- if(add) {
-  const p=state.players.find(x=>x.id===add.dataset.extraAdd);
-  if(p&&score(p,'kniff')===50) {
-   p.extraKniff++;
-   commit();
-  }
- }
-
- if(sub) {
-  const p=state.players.find(x=>x.id===sub.dataset.extra);
-  if(p&&p.extraKniff>0) {
-   p.extraKniff--;
-   commit();
-  }
- }
-});
-
-$('addPlayer').onclick=()=>{
- if(state.players.length>=6) {
-  toast('Maximal 6 Spieler');
-  return;
- }
-
- const n=prompt('Name des neuen Spielers:','Spieler '+(state.players.length+1));
- if(n&&n.trim()) {
-  state.players.push(blankPlayer(n.trim()));
-  commit();
- }
+$('addPlayer').onclick = ()=>{
+ if(state.players.length>=6) { toast('Maximal 6 Spieler'); return; }
+ const n = prompt('Name des neuen Spielers:', 'Spieler '+(state.players.length+1));
+ if(n && n.trim()) { state.players.push(blankPlayer(n.trim().slice(0,24))); commit(); }
 };
 
-$('newGame').onclick=()=>{
- if(!confirm('Neue Partie mit denselben Spielern starten? Die aktuelle Partie wird nicht archiviert, exportiere sie bei Bedarf vorher.')) return;
-
- state=fresh(state.players.map(p=>p.name));
+$('newGame').onclick = ()=>{
+ if(!confirm('Neues Spiel mit denselben Spielern starten? Alle Punkte werden gelöscht.')) return;
+ state = fresh(state.players.map(p=>p.name));
  commit();
- toast('Neue Partie gestartet');
+ window.scrollTo({top:0});
+ toast('Neues Spiel gestartet');
 };
 
-$('resetBtn').onclick=()=>{
- if(!confirm('Alle Punkte dieser Partie wirklich löschen?')) return;
-
- state=fresh(state.players.map(p=>p.name));
- commit();
-};
-
-$('exportBtn').onclick=()=>{
- const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
- const a=document.createElement('a');
- a.href=URL.createObjectURL(blob);
- a.download='QuicKniff-Spielstand-'+new Date().toISOString().slice(0,10)+'.json';
+$('exportBtn').onclick = ()=>{
+ const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+ const a = document.createElement('a');
+ a.href = URL.createObjectURL(blob);
+ a.download = 'QuicKniff-Spielstand-'+new Date().toISOString().slice(0,10)+'.json';
  a.click();
- URL.revokeObjectURL(a.href);
- toast('Spielstand exportiert');
+ setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+ toast('Sicherung gespeichert');
 };
 
-$('importBtn').onclick=()=>$('importFile').click();
-
-$('importFile').onchange=async e=>{
- const f=e.target.files[0];
+$('importBtn').onclick = ()=>$('importFile').click();
+$('importFile').onchange = async e=>{
+ const f = e.target.files[0];
  if(!f) return;
-
  try {
-  const x=normalize(JSON.parse(await f.text()));
+  const x = normalize(JSON.parse(await f.text()));
   if(!x) throw Error();
-
-  state=x;
-  commit();
-  toast('Spielstand importiert');
+  state = x; commit(); toast('Sicherung geladen');
  } catch(err) {
-  alert('Die Datei ist kein gültiger QuicKniff-Spielstand.');
+  alert('Diese Datei ist keine QuicKniff-Sicherung. Bitte eine .json-Datei wählen, die über „Sicherung speichern“ entstanden ist.');
  }
-
- e.target.value='';
+ e.target.value = '';
 };
 
-/* Theme */
-
-const MOON='<svg class="ic" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
-
-const SUN='<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>';
-
-function applyTheme(t,saveTheme) {
- document.documentElement.setAttribute('data-theme',t);
- $('themeBtn').innerHTML=t==='dark'?SUN:MOON;
-
- document.querySelector('meta[name="theme-color"]')
-  .setAttribute('content',t==='dark'?'#000000':'#f2f2f7');
-
- if(saveTheme) {
-  try {
-   localStorage.setItem('overall-theme',t);
-  } catch(e) {}
- }
+/* ---------- Hell/Dunkel ---------- */
+const MOON = '<svg class="ic" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+const SUN = '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>';
+function applyTheme(t, saveTheme) {
+ document.documentElement.setAttribute('data-theme', t);
+ $('themeBtn').innerHTML = t==='dark' ? SUN : MOON;
+ document.querySelector('meta[name="theme-color"]').setAttribute('content', t==='dark' ? '#000000' : '#f2f2f7');
+ if(saveTheme) { try { localStorage.setItem('overall-theme', t); } catch(e) {} }
 }
+$('themeBtn').onclick = ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark', true);
+applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light', false);
 
-$('themeBtn').onclick=()=>{
- applyTheme(
-  document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark',
-  true
- );
-};
-
-applyTheme(
- document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light',
- false
-);
-
-window.addEventListener('storage',e=>{
- if(e.key==='overall-theme'&&e.newValue) {
-  applyTheme(e.newValue,false);
- }
-
- if(e.key===STORAGE) {
-  state=load();
-  render();
- }
+window.addEventListener('storage', e=>{
+ if(e.key==='overall-theme' && e.newValue) applyTheme(e.newValue, false);
+ if(e.key===STORAGE) { state = load(); render(); }
 });
 
 render();
 
 /* Service Worker: offline nutzbar */
-
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) {
- window.addEventListener('load',()=>{
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
- });
+ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
 }
 
 })();
 </script>
 
 <script src="shared/ios-nav.js" defer></script>
-
 </body>
 </html>
