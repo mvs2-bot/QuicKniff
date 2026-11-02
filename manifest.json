@@ -1,0 +1,19 @@
+{
+  "id": "quic-kniff",
+  "name": "QuicKniff",
+  "short_name": "QuicKniff",
+  "description": "Der schnelle digitale Kniffel-Block",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
