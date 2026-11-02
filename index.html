@@ -700,13 +700,6 @@ th.player-col {
 
 <body>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="dice" viewBox="0 0 24 24">
-    <path d="M12 2.8 20 7.3v9.4l-8 4.5-8-4.5V7.3z"/>
-    <path d="M4 7.3l8 4.5 8-4.5M12 11.8v9.4"/>
-  </symbol>
-</svg>
-
 <header>
   <div class="wrap bar">
     <img class="logo" src="icon.svg" alt="">
@@ -839,10 +832,28 @@ function fresh(names=['Spieler 1','Spieler 2']) {
  };
 }
 
+function normalize(x) {
+ if(!x || !Array.isArray(x.players) || !x.players.length || x.players.length>6) return null;
+ const ids = new Set(CATS.map(c=>c.id));
+ x.players = x.players.map((p,i)=>{
+  const scores = {};
+  if(p && p.scores && typeof p.scores==='object') {
+   for(const [k,v] of Object.entries(p.scores)) if(ids.has(k) && Number.isFinite(v)) scores[k]=v;
+  }
+  return {
+   id: p && p.id ? String(p.id) : blankPlayer('').id,
+   name: p && p.name ? String(p.name) : 'Spieler '+(i+1),
+   scores,
+   extraKniffel: Math.max(0, Math.floor(Number(p && p.extraKniffel) || 0))
+  };
+ });
+ return x;
+}
+
 function load() {
  try {
-  const x = JSON.parse(localStorage.getItem(STORAGE));
-  if(x && Array.isArray(x.players) && x.players.length) return x;
+  const x = normalize(JSON.parse(localStorage.getItem(STORAGE)));
+  if(x) return x;
  } catch(e) {}
  return fresh();
 }
@@ -862,9 +873,13 @@ function save() {
  }
 }
 
-function commit() {
+// Vor jeder Änderung aufrufen: merkt den aktuellen Stand für „Rückgängig“.
+function snapshot() {
  historyStack.push(clone(state));
  if(historyStack.length>40) historyStack.shift();
+}
+
+function commit() {
  save();
  render();
 }
@@ -903,7 +918,7 @@ function upperBonus(p) {
 
 function lower(p) {
  return CATS.filter(c=>c.type!=='upper')
-  .reduce((n,c)=>n+(score(p,c.id)||0),0)+p.extraKniffel*50;
+  .reduce((n,c)=>n+(score(p,c.id)||0),0)+(score(p,'kniffel')===50?p.extraKniffel*50:0);
 }
 
 function total(p) {
@@ -968,7 +983,7 @@ function render() {
    <td>
     <div class="bonus-control">
      <button data-extra="${p.id}"
-      ${score(p,'kniffel')===50?'':'disabled'}
+      ${score(p,'kniffel')===50&&p.extraKniffel>0?'':'disabled'}
       aria-label="Zusatz-Kniffel abziehen">−</button>
      <b>${p.extraKniffel} × 50</b>
      <button data-extra-add="${p.id}"
@@ -990,14 +1005,14 @@ function render() {
  $('scoreboard').innerHTML=state.players
   .slice()
   .sort((a,b)=>total(b)-total(a))
-  .map((p,i)=>`
+  .map((p,i,arr)=>{ const lead=i===0&&total(p)>0&&(arr.length<2||total(arr[1])<total(p)); return `
    <div class="scoreline">
-    <span class="${i===0?'winner':''}">
-     ${i===0?'🏆 ':''}${esc(p.name)}${done(p)?' · fertig':''}
+    <span class="${lead?'winner':''}">
+     ${lead?'🏆 ':''}${esc(p.name)}${done(p)?' · fertig':''}
     </span>
-    <strong class="${i===0?'winner':''}">${total(p)} Pkt.</strong>
+    <strong class="${lead?'winner':''}">${total(p)} Pkt.</strong>
    </div>
-  `).join('');
+  `;}).join('');
 
  $('gameTitle').textContent=
   state.players.every(done)?'Partie abgeschlossen':'Aktuelle Partie';
@@ -1074,6 +1089,8 @@ $('modalContent').addEventListener('click',e=>{
  if(!b||!activeCell) return;
 
  const p=state.players.find(x=>x.id===activeCell.pid);
+ if(!p) return closeModal();
+ snapshot();
  p.scores[activeCell.cid]=Number(b.dataset.choice);
 
  commit();
@@ -1082,6 +1099,10 @@ $('modalContent').addEventListener('click',e=>{
 
 $('cancelModal').onclick=closeModal;
 
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&activeCell) closeModal();
+});
+
 $('modalBackdrop').addEventListener('click',e=>{
  if(e.target===$('modalBackdrop')) closeModal();
 });
@@ -1089,6 +1110,8 @@ $('modalBackdrop').addEventListener('click',e=>{
 $('clearScore').onclick=()=>{
  if(!activeCell) return;
  const p=state.players.find(x=>x.id===activeCell.pid);
+ if(!p) return closeModal();
+ snapshot();
  delete p.scores[activeCell.cid];
  commit();
  closeModal();
@@ -1102,10 +1125,9 @@ $('playersEdit').addEventListener('click',e=>{
   const p=state.players.find(x=>x.id===r.dataset.rename);
   const n=prompt('Neuer Spielername:',p.name);
   if(n&&n.trim()) {
-   commit();
+   snapshot();
    p.name=n.trim();
-   save();
-   render();
+   commit();
   }
   return;
  }
@@ -1114,10 +1136,9 @@ $('playersEdit').addEventListener('click',e=>{
  if(d) {
   const p=state.players.find(x=>x.id===d.dataset.remove);
   if(confirm(p.name+' aus der Partie entfernen?')) {
-   commit();
+   snapshot();
    state.players=state.players.filter(x=>x.id!==p.id);
-   save();
-   render();
+   commit();
   }
  }
 });
@@ -1129,20 +1150,18 @@ $('scoreTable').addEventListener('click',e=>{
  if(add) {
   const p=state.players.find(x=>x.id===add.dataset.extraAdd);
   if(p&&score(p,'kniffel')===50) {
-   commit();
+   snapshot();
    p.extraKniffel++;
-   save();
-   render();
+   commit();
   }
  }
 
  if(sub) {
   const p=state.players.find(x=>x.id===sub.dataset.extra);
   if(p&&p.extraKniffel>0) {
-   commit();
+   snapshot();
    p.extraKniffel--;
-   save();
-   render();
+   commit();
   }
  }
 });
@@ -1155,31 +1174,27 @@ $('addPlayer').onclick=()=>{
 
  const n=prompt('Name des neuen Spielers:','Spieler '+(state.players.length+1));
  if(n&&n.trim()) {
-  commit();
+  snapshot();
   state.players.push(blankPlayer(n.trim()));
-  save();
-  render();
+  commit();
  }
 };
 
 $('newGame').onclick=()=>{
- if(!confirm('Neue Partie starten? Die aktuelle Partie wird vorher als Datei nicht automatisch archiviert. Exportiere sie bei Bedarf zuerst.')) return;
+ if(!confirm('Neue Partie mit denselben Spielern starten? Die aktuelle Partie wird nicht archiviert, exportiere sie bei Bedarf vorher.')) return;
 
- commit();
+ snapshot();
  state=fresh(state.players.map(p=>p.name));
- historyStack=[];
- save();
- render();
+ commit();
  toast('Neue Partie gestartet');
 };
 
 $('resetBtn').onclick=()=>{
  if(!confirm('Alle Punkte dieser Partie wirklich löschen?')) return;
 
- commit();
+ snapshot();
  state=fresh(state.players.map(p=>p.name));
- save();
- render();
+ commit();
 };
 
 $('exportBtn').onclick=()=>{
@@ -1199,13 +1214,12 @@ $('importFile').onchange=async e=>{
  if(!f) return;
 
  try {
-  const x=JSON.parse(await f.text());
-  if(!x||!Array.isArray(x.players)||!x.players.length||x.players.length>6) throw Error();
+  const x=normalize(JSON.parse(await f.text()));
+  if(!x) throw Error();
 
-  commit();
+  snapshot();
   state=x;
-  save();
-  render();
+  commit();
   toast('Spielstand importiert');
  } catch(err) {
   alert('Die Datei ist kein gültiger QuicKniff-Spielstand.');
@@ -1259,7 +1273,7 @@ window.addEventListener('storage',e=>{
 
 render();
 
-/* Service Worker */
+/* Service Worker: offline nutzbar */
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) {
  window.addEventListener('load',()=>{
