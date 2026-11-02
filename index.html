@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>QuicKniff</title>
-<meta name="description" content="QuicKniff – der schnelle digitale Kniffel-Block.">
+<meta name="description" content="QuicKniff – der schnelle digitale K******-Block.">
 <meta name="theme-color" content="#f2f2f7">
 <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -298,7 +298,7 @@ main {
 }
 
 /* =========================================
-   KNiffel-TABELLE
+   K-TABELLE
    Vollständige Breite ohne horizontales Scrollen
    ========================================= */
 
@@ -712,7 +712,7 @@ th.player-col {
     <img class="logo" src="icon.svg" alt="">
     <div class="head">
       <h1>QuicKniff</h1>
-      <div class="sub">Der schnelle digitale Kniffel-Block</div>
+      <div class="sub">Der schnelle digitale K******-Block</div>
     </div>
     <button class="icon-btn" id="themeBtn" type="button"
       aria-label="Hell oder dunkel" title="Hell / Dunkel">
@@ -733,7 +733,7 @@ th.player-col {
     </div>
 
     <div class="table-scroll" id="tableScroll">
-      <table id="scoreTable" aria-label="Kniffel-Spielzettel"></table>
+      <table id="scoreTable" aria-label="Spielzettel"></table>
     </div>
 
     <p class="note">
@@ -817,7 +817,7 @@ const CATS = [
  {id:'fullHouse',name:'Full House',type:'fixed',points:25},
  {id:'smallStraight',name:'Kleine Straße',type:'fixed',points:30},
  {id:'largeStraight',name:'Große Straße',type:'fixed',points:40},
- {id:'kniffel',name:'Kniffel',type:'fixed',points:50},
+ {id:'k******',name:'K******',type:'fixed',points:50},
  {id:'chance',name:'Chance',type:'sum'}
 ];
 
@@ -829,7 +829,7 @@ const blankPlayer = name => ({
  id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
  name,
  scores: {},
- extraKniffel: 0
+ extraK******: 0
 });
 
 function fresh(names=['Spieler 1','Spieler 2']) {
@@ -897,7 +897,7 @@ function upperBonus(p) {
 
 function lower(p) {
  return CATS.filter(c=>c.type!=='upper')
-  .reduce((n,c)=>n+(score(p,c.id)||0),0)+p.extraKniffel*50;
+  .reduce((n,c)=>n+(score(p,c.id)||0),0)+p.extraK*******50;
 }
 
 function total(p) {
@@ -957,17 +957,17 @@ function render() {
   .forEach(c=>rows.push(row(c)));
 
  rows.push(`<tr>
-  <td>Zusatz-Kniffel</td>
+  <td>Zusatz-K******</td>
   ${state.players.map(p=>`
    <td>
     <div class="bonus-control">
      <button data-extra="${p.id}"
-      ${score(p,'kniffel')===50?'':'disabled'}
-      aria-label="Zusatz-Kniffel abziehen">−</button>
-     <b>${p.extraKniffel} × 50</b>
+      ${score(p,'k******')===50?'':'disabled'}
+      aria-label="Zusatz-K****** abziehen">−</button>
+     <b>${p.extraK******} × 50</b>
      <button data-extra-add="${p.id}"
-      ${score(p,'kniffel')===50?'':'disabled'}
-      aria-label="Zusatz-Kniffel hinzufügen">＋</button>
+      ${score(p,'k******')===50?'':'disabled'}
+      aria-label="Zusatz-K****** hinzufügen">＋</button>
     </div>
    </td>
   `).join('')}
@@ -1122,9 +1122,9 @@ $('scoreTable').addEventListener('click',e=>{
 
  if(add) {
   const p=state.players.find(x=>x.id===add.dataset.extraAdd);
-  if(p&&score(p,'kniffel')===50) {
+  if(p&&score(p,'k******')===50) {
    commit();
-   p.extraKniffel++;
+   p.extraK******++;
    save();
    render();
   }
@@ -1132,9 +1132,9 @@ $('scoreTable').addEventListener('click',e=>{
 
  if(sub) {
   const p=state.players.find(x=>x.id===sub.dataset.extra);
-  if(p&&p.extraKniffel>0) {
+  if(p&&p.extraK******>0) {
    commit();
-   p.extraKniffel--;
+   p.extraK******--;
    save();
    render();
   }
