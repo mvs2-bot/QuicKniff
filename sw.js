@@ -1,7 +1,7 @@
 // QuicKniff – Service Worker (offline-fähig)
 // Die Seite selbst kommt immer zuerst aus dem Netz, eine Versionsnummer muss dafür nicht erhöht werden.
 // Nur bei Änderungen an ASSETS (neue oder umbenannte Dateien) die Cache-Version erhöhen.
-const CACHE = 'quickniff-v1';
+const CACHE = 'quickniff-v2';
 const ASSETS = ['./', './index.html', './shared/ios-nav.js', './manifest.json', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 const NET_TIMEOUT = 3000; // so lange auf das Netz warten, danach die gespeicherte Seite zeigen
