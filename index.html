@@ -118,7 +118,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
 }
 .name:hover { background: var(--well); }
 .name.lead { color: var(--p1); }
-.c.corner { font-size: 12px; font-weight: 600; color: var(--mute); }
+.c.corner { font-size: 12px; font-weight: 400; color: var(--mute); }
 
 /* Würfelaugen als Symbol für den oberen Block */
 .die { width: 18px; height: 18px; flex: none; color: var(--mute); }
@@ -137,7 +137,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
 
 .calc { font-size: 13px; font-weight: 600; color: var(--mute); }
 .calc.ok { color: var(--p1); }
-.calc small { font-size: 11px; font-weight: 500; }
+.calc small { font-size: 12px; font-weight: 400; }
 
 /* Gesamtzeile: das eine laute Element der Seite */
 .tr.total .c { background: var(--p1); color: var(--on-p1); font-weight: 700; font-size: 17px; border: 0; }
@@ -145,7 +145,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
 .tr.total .c:last-child { border-radius: 0 12px 12px 0; }
 
 /* ===== Unter dem Spielzettel ===== */
-.card-title { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--mute); }
+.card-title { margin: 0 0 10px; font-size: 15px; font-weight: 600; color: var(--ink); }
 .scoreboard { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .scoreline { display: flex; justify-content: space-between; gap: 12px; color: var(--text); }
 .scoreline strong { color: var(--ink); }
@@ -158,7 +158,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
 }
 .btn:hover { filter: brightness(1.06); }
 .btn.secondary { background: var(--well); color: var(--ink); }
-.btn.ghost { background: transparent; color: var(--mute); }
+.btn.ghost { background: transparent; color: var(--mute); padding: 0; }
 .btn.danger { background: var(--well); color: var(--p1); }
 .btn .ic { width: 17px; height: 17px; }
 .note { margin: 12px 0 0; font-size: 13px; color: var(--mute); }
@@ -184,7 +184,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
   min-height: 52px; border: 1px solid var(--line); border-radius: 12px; background: var(--well);
   font-weight: 700; font-size: 17px; color: var(--ink); line-height: 1.1;
 }
-.choice small { display: block; font-size: 11px; font-weight: 500; color: var(--mute); }
+.choice small { display: block; font-size: 12px; font-weight: 400; color: var(--mute); }
 .choice.zero { color: var(--mute); }
 .choice.on { background: var(--p1-soft); border-color: var(--p1); color: var(--p1); }
 .choice:active { background: var(--p1-soft); border-color: var(--p1); color: var(--p1); }
@@ -257,7 +257,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
       </button>
       <button class="btn secondary" id="addPlayer" type="button">Spieler hinzufügen</button>
     </div>
-    <div class="toolbar" style="margin-top:8px">
+    <div class="toolbar" style="margin-top:8px; gap:20px">
       <button class="btn ghost" id="exportBtn" type="button">Sicherung speichern</button>
       <button class="btn ghost" id="importBtn" type="button">Sicherung laden</button>
     </div>
