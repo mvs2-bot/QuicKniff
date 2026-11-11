@@ -39,7 +39,7 @@
    Akzent --p1 = App-Farbe von QuicKniff (Ziegelrot, passend zum Würfel-Icon).
    Hauptregel: Der Spielzettel füllt am Handy genau einen Bildschirm, ohne Scrollen. */
 :root {
-  --bg: #f2f2f7; --card: #fff; --well: #f2f2f7; --hover: #e9e9ef; --line: #e2e2e7; --sep: rgba(60, 60, 67, .14);
+  --bg: #f2f2f7; --card: #fff; --well: #f2f2f7; --hover: #e9e9ef; --line: #e2e2e7; --sep: rgba(60, 60, 67, .14); --vsep: rgba(60, 60, 67, .07);
   --ink: #1c1c1e; --text: #3a3a3c; --mute: #6c6c70;
   --p1: #a63a32; --p1-soft: #f7e4e1; --on-p1: #fff;
   --radius: 18px; --radius-s: 12px; --shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 4px 14px rgba(0, 0, 0, .04);
@@ -49,7 +49,7 @@
   --gap: 12px;
 }
 [data-theme="dark"] {
-  color-scheme: dark; --bg: #000; --card: #1c1c1e; --well: #2c2c2e; --hover: #3a3a3c; --line: #38383a; --sep: rgba(84, 84, 88, .55);
+  color-scheme: dark; --bg: #000; --card: #1c1c1e; --well: #2c2c2e; --hover: #3a3a3c; --line: #38383a; --sep: rgba(84, 84, 88, .55); --vsep: rgba(84, 84, 88, .3);
   --ink: #f5f5f7; --text: #d1d1d6; --mute: #98989f; --p1: #e5695d; --p1-soft: #3a1512; --on-p1: #1a0604;
   --shadow: none; --shadow-pop: 0 10px 40px rgba(0, 0, 0, .6);
 }
@@ -121,6 +121,8 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
 .c.lab span { overflow: hidden; text-overflow: ellipsis; }
 .tr.split .c { border-bottom: 2px solid var(--line); }
 .tr:nth-last-child(2) .c { border-bottom: 0; }
+/* Senkrechte Linien zwischen Zeilennamen und Spielerspalten, heller als die Zeilenlinien; Gesamt-Zeile ohne */
+.tr:not(.total) .c:not(:last-child) { border-right: 1px solid var(--vsep); }
 
 /* Viele Spieler: Kategorien-Spalte enger */
 .sheet.many .c.lab { gap: 5px; padding-left: 4px; font-size: 13px; }
