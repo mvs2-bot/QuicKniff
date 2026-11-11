@@ -1,0 +1,95 @@
+# Baut die Android-App (Trusted Web Activity) mit Bubblewrap und veröffentlicht die APK als GitHub-Release.
+# Start: Reiter „Actions“ → „Android-APK bauen“ → „Run workflow“, oder automatisch bei Änderungen in android/.
+# Download immer unter: https://github.com/mvs2-bot/QuicKniff/releases/latest/download/QuicKniff.apk
+#
+# Signieren: Für Updates muss jede Version mit demselben Schlüssel signiert sein. Dafür zwei Repo-Secrets anlegen:
+#   ANDROID_KEYSTORE_BASE64  (Keystore-Datei, base64-kodiert)
+#   ANDROID_KEYSTORE_PASSWORD
+# Fehlen sie, wird ein Wegwerf-Schlüssel erzeugt: Die APK funktioniert, aber jede neue Version muss man
+# erst deinstallieren (Spielstand bleibt erhalten, er liegt in Chrome).
+name: Android-APK bauen
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android-apk.yml']
+  pull_request:   # im PR nur bauen (Probe), ohne Release
+    paths: ['android/**', '.github/workflows/android-apk.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Bubblewrap einrichten
+        run: |
+          npm install -g @bubblewrap/cli@1.27.0
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" --install "build-tools;36.1.0" "platforms;android-36" > /dev/null
+          # Bubblewrap erwartet sdkmanager unter <sdk>/bin oder <sdk>/tools/bin
+          [ -e "$ANDROID_HOME/bin" ] || [ -e "$ANDROID_HOME/tools" ] || ln -s cmdline-tools/latest/bin "$ANDROID_HOME/bin"
+
+      - name: Version setzen (fortlaufend pro Build)
+        run: |
+          jq --argjson code "${{ github.run_number }}" --arg name "1.0.${{ github.run_number }}" \
+            '.appVersionCode = $code | .appVersion = $name' twa-manifest.json > m.json && mv m.json twa-manifest.json
+
+      - name: Signierschlüssel
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS_B64" | base64 -d > android.keystore
+            echo "KS_PASS=$KS_PASS" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Keine Signier-Secrets gesetzt, es wird ein Wegwerf-Schlüssel benutzt."
+            P=$(openssl rand -hex 16); echo "::add-mask::$P"
+            keytool -genkeypair -keystore android.keystore -alias quickniff -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass "$P" -keypass "$P" -dname "CN=QuicKniff"
+            echo "KS_PASS=$P" >> "$GITHUB_ENV"
+          fi
+          echo "### SHA-256-Fingerabdruck (für assetlinks.json)" >> "$GITHUB_STEP_SUMMARY"
+          keytool -list -v -keystore android.keystore -alias quickniff -storepass "$KS_PASS" \
+            | grep 'SHA256:' | sed 's/.*SHA256: //' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Projekt erzeugen und bauen
+        run: |
+          bubblewrap update --skipVersionUpgrade
+          BUBBLEWRAP_KEYSTORE_PASSWORD="$KS_PASS" BUBBLEWRAP_KEY_PASSWORD="$KS_PASS" \
+            bubblewrap build --skipPwaValidation
+          cp app-release-signed.apk QuicKniff.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuicKniff-apk
+          path: android/QuicKniff.apk
+
+      - name: Release veröffentlichen
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "android-v1.0.${{ github.run_number }}" QuicKniff.apk \
+            --title "QuicKniff für Android 1.0.${{ github.run_number }}" \
+            --notes "APK zum direkten Installieren. Am Handy öffnen, herunterladen, „Installieren“ antippen (einmalig Installation aus dieser Quelle erlauben)."
