@@ -10,7 +10,7 @@ Der schnelle digitale Kniff-Block für 1–6 Spieler, direkt im Browser.
 - **Spieler:** hinzufügen, umbenennen, entfernen
 - **Sichern:** Spielstand bleibt im Local Storage; Export und Import als JSON-Datei
 - **Hell/Dunkel-Modus:** gemeinsame Einstellung mit dem Dashboard (`overall-theme`)
-- **PWA:** installierbar (Icons für iPhone und Android) und offline nutzbar
+- **PWA:** installierbar (Icons für iPhone und Android) und offline nutzbar; beim ersten Besuch ein Hinweis zum Installieren (Testen mit `?install=1`)
 
 ## Aufbau
 
