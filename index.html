@@ -4,18 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>QuicKniff</title>
-<meta name="description" content="QuicKniff – der schnelle digitale Kniff-Block.">
+<meta name="description" content="Der schnelle digitale Kniff-Block für 1–6 Spieler: Punkte antippen, Summen und Bonus rechnen sich selbst. Offline nutzbar.">
 <meta name="theme-color" content="#f2f2f7">
+<meta name="apple-mobile-web-app-title" content="QuicKniff">
+<!-- Vorschau beim Teilen (WhatsApp, Signal, iMessage …) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="QuicKniff">
+<meta property="og:title" content="QuicKniff – der schnelle digitale Kniff-Block">
+<meta property="og:description" content="Punkte antippen, Summen und Bonus rechnen sich selbst. Für 1–6 Spieler, offline nutzbar.">
+<meta property="og:url" content="https://mvs2-bot.github.io/QuicKniff/">
+<meta property="og:image" content="https://mvs2-bot.github.io/QuicKniff/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:locale" content="de_DE">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
 <link rel="manifest" href="manifest.json">
 
 <script>
-// Darstellung gilt für alle Seiten (overall-theme), vor dem ersten Rendern setzen. Standard: hell.
+// Darstellung gilt für alle Seiten (overall-theme), vor dem ersten Rendern setzen.
+// Ohne gespeicherte Wahl folgt die Seite der Einstellung des Geräts.
 (function () {
-  var t = 'light';
-  try { t = localStorage.getItem('overall-theme') || localStorage.getItem('dash-theme') || 'light'; } catch (e) {}
+  var t = null;
+  try { t = localStorage.getItem('overall-theme') || localStorage.getItem('dash-theme'); } catch (e) {}
+  if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
@@ -49,6 +63,7 @@ body {
 }
 ::selection { background: var(--p1-soft); color: var(--ink); }
 button { font: inherit; color: inherit; cursor: pointer; }
+[hidden] { display: none !important; }
 :focus-visible { outline: 2px solid var(--p1); outline-offset: 2px; }
 .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -130,14 +145,26 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
   width: calc(100% - 4px); height: calc(100% - 4px); border: 0; border-radius: 8px; padding: 0;
   background: transparent; color: var(--ink); font-weight: 600; font-size: 16px;
 }
+.cell { transition: transform .12s ease-out, background-color .12s; }
 .cell:hover { background: var(--well); }
 .cell.empty::after { content: ""; display: block; width: 4px; height: 4px; margin: auto; border-radius: 50%; background: var(--line); }
 .cell.zero { color: var(--mute); font-weight: 400; }
-.cell:active { background: var(--p1-soft); }
+.cell:active { background: var(--p1-soft); transform: scale(.92); }
+/* Gesperrt (Zusatz vor dem ersten Kniff): kurzer Strich statt Punkt, nicht antippbar */
+.cell:disabled { cursor: default; background: none; transform: none; }
+.cell:disabled::after { width: 10px; height: 1.5px; border-radius: 1px; opacity: .8; }
+.c.lab.off { color: var(--mute); }
+/* Feld, das gerade bearbeitet wird, und frisch eingetragenes Feld */
+.cell.picked { background: var(--p1-soft); box-shadow: inset 0 0 0 2px var(--p1); }
+.tr:has(.cell.picked) .c.lab, .name.picked { color: var(--p1); }
+.cell.flash { animation: flash .9s ease-out; }
+@keyframes flash { from { background: var(--p1-soft); } }
 
 .calc { font-size: 13px; font-weight: 600; color: var(--mute); }
 .calc.ok { color: var(--p1); }
+.calc.par { color: var(--ink); }
 .calc small { font-size: 12px; font-weight: 400; }
+.calc.none::after { content: ""; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--line); }
 
 /* Gesamtzeile: das eine laute Element der Seite */
 .tr.total .c { background: var(--p1); color: var(--on-p1); font-weight: 700; font-size: 17px; border: 0; }
@@ -174,7 +201,24 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
   width: min(100%, 440px); background: var(--card); border-radius: 22px; padding: 18px;
   box-shadow: var(--shadow-pop); max-height: 85vh; overflow: auto;
   animation: up .28s cubic-bezier(.2, .9, .3, 1);
+  transition: transform .22s cubic-bezier(.2, .9, .3, 1);
+  overscroll-behavior: contain;
 }
+/* Griff oben: Blatt lässt sich nach unten wegwischen */
+.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--line); margin: -8px auto 12px; }
+.field {
+  width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--well); color: var(--ink); font: inherit; font-size: 17px; /* ab 16px zoomt iOS nicht */
+}
+.field:focus { outline: 2px solid var(--p1); outline-offset: 0; border-color: transparent; }
+/* Ergebnis am Ende */
+.podium { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+.podium li { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--well); color: var(--ink); }
+.podium .place { width: 22px; color: var(--mute); font-weight: 600; }
+.podium .who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podium strong { font-size: 17px; }
+.podium li.win { background: var(--p1); color: var(--on-p1); }
+.podium li.win .place { color: inherit; }
 @keyframes up { from { transform: translateY(24px); opacity: .6; } }
 .modal h3 { margin: 0 0 2px; color: var(--ink); font-size: 18px; }
 .modal-sub { color: var(--mute); font-size: 13px; margin-bottom: 14px; }
@@ -196,8 +240,16 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
   position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
   opacity: 0; pointer-events: none; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px;
   font-size: 13px; z-index: 80; transition: .2s;
+  display: flex; align-items: center; gap: 4px; white-space: nowrap; max-width: calc(100vw - 32px);
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.has-action { pointer-events: auto; padding: 4px 4px 4px 16px; }
+.toast span { overflow: hidden; text-overflow: ellipsis; }
+.toast button {
+  border: 0; background: none; color: var(--p1-soft); font-weight: 600; font-size: 13px;
+  min-height: 36px; padding: 0 12px; border-radius: 999px;
+}
+[data-theme="dark"] .toast button { color: #a63a32; }
 
 /* Schmale Handys: Kategorien-Spalte und Schrift etwas kompakter */
 @media (max-width: 380px) {
@@ -229,9 +281,9 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
     <img class="logo" src="icon.svg" alt="">
     <div class="head">
       <h1>QuicKniff</h1>
-      <div class="sub">Der schnelle digitale Kniff-Block</div>
+      <div class="sub" id="sub">Der schnelle digitale Kniff-Block</div>
     </div>
-    <button class="icon-btn" id="themeBtn" type="button" aria-label="Hell oder dunkel" title="Hell / Dunkel">
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Dunkle Darstellung" title="Hell / Dunkel">
       <svg class="ic" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
     </button>
   </div>
@@ -247,6 +299,7 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
   <section class="card">
     <h2 class="card-title" id="boardTitle">Spielstand</h2>
     <ol class="scoreboard" id="scoreboard"></ol>
+    <button class="btn secondary" id="showResult" type="button" style="margin-top:12px" hidden>Ergebnis ansehen</button>
   </section>
 
   <section class="card">
@@ -258,24 +311,25 @@ main { display: grid; gap: var(--gap); padding-block: var(--gap) calc(40px + env
       <button class="btn secondary" id="addPlayer" type="button">Spieler hinzufügen</button>
     </div>
     <div class="toolbar" style="margin-top:8px; gap:20px">
-      <button class="btn ghost" id="exportBtn" type="button">Sicherung speichern</button>
-      <button class="btn ghost" id="importBtn" type="button">Sicherung laden</button>
+      <button class="btn ghost" id="exportBtn" type="button">Sichern</button>
+      <button class="btn ghost" id="importBtn" type="button">Wiederherstellen</button>
     </div>
     <input id="importFile" type="file" accept="application/json,.json" hidden>
-    <p class="note">Feld antippen, um Punkte einzutragen. Namen antippen, um Spieler umzubenennen oder zu entfernen. Der Spielstand bleibt auf diesem Gerät gespeichert.</p>
+    <p class="note">Feld antippen, um Punkte einzutragen. Namen antippen, um Spieler umzubenennen oder zu entfernen. Die Bonus-Zeile zeigt, wie weit ein Spieler über oder unter dem Soll liegt (drei Würfel je Zahl, so reicht es genau für 63). Der Spielstand bleibt auf diesem Gerät gespeichert, der Bildschirm bleibt während des Spiels an.</p>
   </section>
 
 </main>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="grabber" aria-hidden="true"></div>
     <h3 id="modalTitle"></h3>
     <div class="modal-sub" id="modalSub"></div>
     <div id="modalContent"></div>
     <div class="modal-actions">
       <button class="btn secondary" id="cancelModal" type="button">Abbrechen</button>
-      <button class="btn danger" id="clearScore" type="button">Feld leeren</button>
+      <button class="btn" id="modalAction" type="button" hidden></button>
     </div>
   </div>
 </div>
@@ -306,7 +360,7 @@ const EXTRA = {id:'extra',name:'Zusatz-Kniff'};
 
 const STORAGE = 'quickniff-state-v1';
 
-let state, active = null, lastFocus = null;
+let state, active = null, lastFocus = null, modalAction = null, undoSnap = null;
 
 const blankPlayer = name => ({
  id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()),
@@ -355,17 +409,34 @@ function save() {
 
 function commit() { save(); render(); }
 
+/* ---------- Rückgängig: Stand vor der letzten Änderung merken ---------- */
+function remember() { undoSnap = JSON.stringify(state); }
+function undo() {
+ if(!undoSnap) return;
+ const x = normalize(JSON.parse(undoSnap));
+ undoSnap = null;
+ if(!x) return;
+ state = x; closeModal(); commit(); toast('Rückgängig gemacht');
+}
+
 function esc(s) {
  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 const score = (p,id) => Object.prototype.hasOwnProperty.call(p.scores,id) ? p.scores[id] : null;
-const upper = p => CATS.filter(c=>c.type==='upper').reduce((n,c)=>n+(score(p,c.id)||0),0);
+const UPPER = CATS.filter(c=>c.type==='upper');
+const upper = p => UPPER.reduce((n,c)=>n+(score(p,c.id)||0),0);
 const upperBonus = p => upper(p)>=63 ? 35 : 0;
 const extraPts = p => score(p,'kniff')===50 ? p.extraKniff*50 : 0;
 const lower = p => CATS.filter(c=>c.type!=='upper').reduce((n,c)=>n+(score(p,c.id)||0),0) + extraPts(p);
 const total = p => upper(p)+upperBonus(p)+lower(p);
 const done = p => CATS.every(c=>score(p,c.id)!==null);
+const allDone = () => state.players.every(done);
+const anyScore = () => state.players.some(p=>Object.keys(p.scores).length || p.extraKniff);
+const gameDate = () => {
+ const d = new Date(state.createdAt);
+ return isNaN(d) ? '' : d.toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'});
+};
 
 // Würfelaugen als SVG (statt Unicode-Würfelzeichen)
 const PIPS = {1:[[12,12]],2:[[8,8],[16,16]],3:[[7.5,7.5],[12,12],[16.5,16.5]],4:[[8,8],[16,8],[8,16],[16,16]],
@@ -376,6 +447,35 @@ const die = n => `<svg class="die" viewBox="0 0 24 24" aria-hidden="true"><rect 
 function leaderId() {
  const s = state.players.map(p=>({id:p.id,t:total(p)})).sort((a,b)=>b.t-a.t);
  return s[0].t>0 && (s.length<2 || s[1].t<s[0].t) ? s[0].id : null;
+}
+
+/* Kurznamen für schmale Spalten (ab 4 Spielern): „Anna“ → „An“, „Spieler 3“ → „S3“, „Anna Maier“ → „AM“.
+   Werden die Kürzel doppelt, wird schrittweise verlängert. */
+function abbr(name, n) {
+ const w = name.trim().split(/\s+/);
+ if(w.length>1) return w[0].slice(0,n-1) + w.slice(1).map(x=>/^\d+$/.test(x) ? x : x[0]).join('');
+ return w[0].slice(0,n);
+}
+function shortNames(P) {
+ const n = P.map(()=>2);
+ for(let round=0; round<4; round++) {
+  const a = P.map((p,i)=>abbr(p.name,n[i])), lc = a.map(s=>s.toLowerCase());
+  let dup = false;
+  lc.forEach((s,i)=>{ if(lc.indexOf(s)!==lc.lastIndexOf(s)) { n[i]++; dup = true; } });
+  if(!dup) return a;
+ }
+ return P.map(p=>p.name);
+}
+
+// Bonus-Stand: Abstand zum Soll (drei Würfel je eingetragener Zahl, zusammen genau 63)
+function bonusCell(p) {
+ const u = upper(p), filled = UPPER.filter(c=>score(p,c.id)!==null);
+ const par = filled.reduce((n,c)=>n+3*c.face,0), d = u-par;
+ if(u>=63) return {cls:'ok', html:'+35', label:`Bonus erreicht, plus 35 (${u} von 63)`};
+ if(!filled.length) return {cls:'none', html:'', label:'noch nichts eingetragen'};
+ if(filled.length===UPPER.length) return {cls:'', html:'–', label:`kein Bonus (${u} von 63)`};
+ const sign = d>0 ? '+'+d : d<0 ? '−'+(-d) : '±0';
+ return {cls: d>=0 ? 'par' : '', html:sign, label:`${u} von 63, ${d>=0 ? d+' über' : (-d)+' unter'} dem Soll`};
 }
 
 function cellBtn(p, c) {
@@ -389,36 +489,93 @@ function cellBtn(p, c) {
 }
 
 function render() {
- const P = state.players, lead = leaderId();
+ const P = state.players, lead = leaderId(), many = P.length>3;
+ const names = many ? shortNames(P) : P.map(p=>p.name);
  const sheet = $('sheet');
  sheet.style.setProperty('--cols', P.length);
- sheet.style.setProperty('--labw', P.length>3 ? '1fr' : '1.5fr'); // viele Spieler: Namen bekommen mehr Platz
- sheet.classList.toggle('many', P.length>3);
+ sheet.style.setProperty('--labw', many ? '1fr' : '1.5fr');
+ sheet.classList.toggle('many', many);
  const row = (cls, html) => `<div class="tr ${cls||''}" role="row">${html}</div>`;
- const lab = (inner, title) => `<div class="c lab" role="rowheader" title="${esc(title)}">${inner}</div>`;
- let h = row('', `<div class="c corner" role="columnheader">Spieler</div>` + P.map(p=>
-  `<div class="c" role="columnheader"><button type="button" class="name ${p.id===lead?'lead':''}" data-player="${p.id}" aria-label="${esc(p.name)}: Spieler bearbeiten">${esc(p.name)}</button></div>`).join(''));
- CATS.filter(c=>c.type==='upper').forEach(c=>{
+ const lab = (inner, title, cls) => `<div class="c lab ${cls||''}" role="rowheader" title="${esc(title)}">${inner}</div>`;
+ let h = row('', `<div class="c corner" role="columnheader">Spieler</div>` + P.map((p,i)=>
+  `<div class="c" role="columnheader"><button type="button" class="name ${p.id===lead?'lead':''}" data-player="${p.id}" title="${esc(p.name)}" aria-label="${esc(p.name)}: Spieler bearbeiten">${esc(names[i])}</button></div>`).join(''));
+ UPPER.forEach(c=>{
   h += row('', lab(`${die(c.face)}<span>${c.name}</span>`, c.name) + P.map(p=>cellBtn(p,c)).join(''));
  });
- h += row('split', lab('<span>Bonus</span>', 'Bonus: +35 ab 63 Punkten im oberen Block') + P.map(p=>{
-  const u = upper(p);
-  return `<div class="c" role="cell"><span class="calc ${u>=63?'ok':''}">${u>=63 ? '+35' : `${u}<small>/63</small>`}</span></div>`;
+ h += row('split', lab('<span>Bonus</span>', 'Bonus: +35 ab 63 Punkten oben. Die Zahl zeigt den Stand gegenüber drei Würfeln je Zahl.') + P.map(p=>{
+  const b = bonusCell(p);
+  return `<div class="c" role="cell"><span class="calc ${b.cls}" aria-label="${esc(p.name)}, Bonus: ${b.label}" title="${b.label}">${b.html}</span></div>`;
  }).join(''));
  CATS.filter(c=>c.type!=='upper').forEach(c=>{
   h += row('', lab(`<span>${c.short||c.name}</span>`, c.name) + P.map(p=>cellBtn(p,c)).join(''));
  });
- h += row('', lab('<span>Zusatz</span>', 'Zusatz-Kniff: je +50 Punkte, sobald ein Kniff eingetragen ist') + P.map(p=>cellBtn(p,EXTRA)).join(''));
+ const extraOn = P.some(p=>score(p,'kniff')===50);
+ h += row('', lab('<span>Zusatz</span>', 'Zusatz-Kniff: je +50 Punkte, sobald ein Kniff eingetragen ist', extraOn?'':'off') + P.map(p=>cellBtn(p,EXTRA)).join(''));
  h += row('total', lab('<span>Gesamt</span>', 'Gesamt') + P.map(p=>`<div class="c" role="cell">${total(p)}</div>`).join(''));
  sheet.innerHTML = h;
 
- const finished = P.every(done);
+ const finished = allDone();
  $('boardTitle').textContent = finished ? 'Partie beendet' : 'Spielstand';
+ $('showResult').hidden = !finished;
+ // Fertiger Zettel: Datum in der Kopfzeile, damit ein Screenshot als Erinnerung taugt
+ $('sub').textContent = finished && gameDate() ? 'Partie vom '+gameDate() : 'Der schnelle digitale Kniff-Block';
  $('scoreboard').innerHTML = P.slice().sort((a,b)=>total(b)-total(a)).map(p=>
   `<li class="scoreline ${p.id===lead?'lead':''}"><span>${esc(p.name)}${p.id===lead?(finished?' gewinnt':' führt'):''}${done(p)&&!finished?' ist fertig':''}</span><strong>${total(p)} Punkte</strong></li>`).join('');
 }
 
-/* ---------- Auswahlblatt ---------- */
+function flash(pid, cid) {
+ const b = $('sheet').querySelector(`[data-cell="${pid}|${cid}"]`);
+ if(b) b.classList.add('flash');
+}
+
+/* ---------- Blatt von unten (für alle Rückfragen, statt prompt/confirm/alert) ---------- */
+function setInert(on) {
+ document.querySelectorAll('body > header, body > .wrap').forEach(el=>{ el.inert = on; });
+}
+
+function openModal(o) {
+ if(!$('modalBackdrop').classList.contains('open')) lastFocus = document.activeElement;
+ hideToast();
+ $('modalTitle').textContent = o.title;
+ $('modalSub').textContent = o.sub || '';
+ $('modalSub').hidden = !o.sub;
+ $('modalContent').innerHTML = o.html || '';
+ $('cancelModal').textContent = o.cancel || 'Abbrechen';
+ modalAction = o.action || null;
+ const a = $('modalAction');
+ a.hidden = !modalAction;
+ if(modalAction) { a.textContent = modalAction.label; a.className = 'btn ' + (modalAction.cls || ''); }
+ $('modal').style.transform = '';
+ $('modalBackdrop').classList.add('open');
+ setInert(true);
+ const c = $('modalContent');
+ const first = c.querySelector('input') || c.querySelector('.choice.on') || c.querySelector('button') || (modalAction ? a : $('cancelModal'));
+ first.focus();
+ if(first.select) first.select();
+}
+
+function closeModal() {
+ if(!$('modalBackdrop').classList.contains('open')) return;
+ $('modalBackdrop').classList.remove('open');
+ setInert(false);
+ active = null; modalAction = null;
+ document.querySelectorAll('.picked').forEach(el=>el.classList.remove('picked'));
+ if(lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+
+function toast(msg, action) {
+ const t = $('toast');
+ t.innerHTML = `<span>${esc(msg)}</span>` + (action ? `<button type="button">${esc(action.label)}</button>` : '');
+ t.classList.toggle('has-action', !!action);
+ if(action) t.querySelector('button').onclick = () => { hideToast(); action.run(); };
+ t.classList.add('show');
+ clearTimeout(toast.t);
+ toast.t = setTimeout(hideToast, action ? 5000 : 1800);
+}
+function hideToast() { $('toast').classList.remove('show', 'has-action'); }
+const UNDO = {label:'Rückgängig', run: undo};
+
+/* Punkte eintragen */
 function options(c) {
  if(c.type==='upper') return [0,1,2,3,4,5].map(k=>({v:k*c.face, hint:k?k+'×':'streichen'}));
  if(c.type==='fixed') return [{v:0,hint:'streichen'},{v:c.points,hint:''}];
@@ -426,53 +583,118 @@ function options(c) {
  return [{v:0,hint:'streichen'}].concat(Array.from({length:26},(_,i)=>({v:i+5,hint:''})));
 }
 
-function openModal(title, sub, content, canClear) {
- lastFocus = document.activeElement;
- $('modalTitle').textContent = title;
- $('modalSub').textContent = sub;
- $('modalContent').innerHTML = content;
- $('clearScore').hidden = !canClear;
- $('modalBackdrop').classList.add('open');
- const first = $('modalContent').querySelector('.choice.on') || $('modalContent').querySelector('button') || $('cancelModal');
- first.focus();
-}
-
 function openScore(pid, cid) {
  const p = state.players.find(x=>x.id===pid);
  const c = cid==='extra' ? EXTRA : CATS.find(x=>x.id===cid);
  if(!p || !c) return;
- active = {type:'score', pid, cid};
  const cur = cid==='extra' ? p.extraKniff : score(p,cid);
  const opts = options(c);
  const sub = p.name + (c.type==='upper' ? ': Wie viele '+c.name+'?' : c.id==='extra' ? ': Wie viele Zusatz-Kniffs? Je 50 Punkte.' : '');
- openModal(c.name, sub,
-  `<div class="choice-grid ${opts.length>8?'many':''}">` + opts.map(o=>
+ openModal({
+  title: c.name, sub,
+  html: `<div class="choice-grid ${opts.length>8?'many':''}">` + opts.map(o=>
    `<button type="button" class="choice ${o.v===0?'zero':''} ${o.v===cur?'on':''}" data-choice="${o.v}">${o.label ?? (o.v===0?'–':o.v)}${o.hint?`<small>${o.hint}</small>`:''}</button>`).join('') + '</div>',
-  cid!=='extra' && cur!==null);
+  action: cid!=='extra' && cur!==null ? {label:'Feld leeren', cls:'danger', run: ()=>{
+   remember(); delete p.scores[cid]; closeModal(); commit(); toast(c.name+' geleert', UNDO);
+  }} : null
+ });
+ active = {type:'score', pid, cid};
+ // Zeigen, welches Feld gerade bearbeitet wird
+ const b = $('sheet').querySelector(`[data-cell="${pid}|${cid}"]`);
+ if(b) b.classList.add('picked');
+ const n = $('sheet').querySelector(`[data-player="${pid}"]`);
+ if(n) n.classList.add('picked');
+}
+
+function setScore(v) {
+ const p = state.players.find(x=>x.id===active.pid);
+ if(!p) return closeModal();
+ const {pid, cid} = active, wasDone = allDone();
+ const c = cid==='extra' ? EXTRA : CATS.find(x=>x.id===cid);
+ remember();
+ if(cid==='extra') p.extraKniff = v; else p.scores[cid] = v;
+ closeModal(); commit(); flash(pid, cid);
+ if(!wasDone && allDone()) { openResult(); return; }
+ const what = cid==='extra' ? (v ? '+'+v*50 : '0') : (v===0 ? 'gestrichen' : v);
+ toast(`${c.name}: ${what}`, UNDO);
+}
+
+/* Spieler */
+function nameForm(value) {
+ return `<form id="nameForm"><input class="field" id="nameInput" type="text" maxlength="24" autocomplete="off" autocapitalize="words" enterkeyhint="done" aria-label="Name" value="${esc(value)}"></form>`;
+}
+function readName() {
+ const i = $('nameInput'), v = i.value.trim().slice(0,24);
+ if(!v) i.focus();
+ return v;
 }
 
 function openPlayer(pid) {
  const p = state.players.find(x=>x.id===pid);
  if(!p) return;
+ openModal({
+  title: p.name, sub: 'Spieler bearbeiten',
+  html: `<div class="toolbar"><button type="button" class="btn secondary" data-act="rename" style="flex:1">Umbenennen</button>` +
+   (state.players.length>1 ? `<button type="button" class="btn danger" data-act="remove" style="flex:1">Entfernen</button>` : '') + '</div>'
+ });
  active = {type:'player', pid};
- openModal(p.name, 'Spieler bearbeiten',
-  `<div class="toolbar"><button type="button" class="btn secondary" data-act="rename" style="flex:1">Umbenennen</button>` +
-  (state.players.length>1 ? `<button type="button" class="btn danger" data-act="remove" style="flex:1">Entfernen</button>` : '') + '</div>', false);
 }
 
-function closeModal() {
- $('modalBackdrop').classList.remove('open');
- active = null;
- if(lastFocus && document.contains(lastFocus)) lastFocus.focus();
+function openRename(p) {
+ openModal({ title:'Umbenennen', sub:p.name, html:nameForm(p.name), action:{label:'Sichern', run:()=>{
+  const v = readName(); if(!v) return;
+  p.name = v; closeModal(); commit();
+ }}});
 }
 
-function toast(msg) {
- $('toast').textContent = msg;
- $('toast').classList.add('show');
- clearTimeout(toast.t);
- toast.t = setTimeout(()=>$('toast').classList.remove('show'), 1800);
+function openRemove(p) {
+ openModal({ title:p.name+' entfernen?', sub:'Alle Punkte in dieser Spalte werden gelöscht.', action:{label:'Entfernen', cls:'danger', run:()=>{
+  remember();
+  state.players = state.players.filter(x=>x.id!==p.id);
+  closeModal(); commit(); toast(p.name+' entfernt', UNDO);
+ }}});
 }
 
+function openAddPlayer() {
+ if(state.players.length>=6) { toast('Maximal 6 Spieler'); return; }
+ openModal({ title:'Spieler hinzufügen', html:nameForm('Spieler '+(state.players.length+1)), action:{label:'Hinzufügen', run:()=>{
+  const v = readName(); if(!v) return;
+  state.players.push(blankPlayer(v)); closeModal(); commit();
+ }}});
+}
+
+/* Neues Spiel */
+function startNew(msg) {
+ remember();
+ state = fresh(state.players.map(p=>p.name));
+ closeModal(); commit();
+ window.scrollTo({top:0});
+ toast(msg || 'Neues Spiel gestartet', UNDO);
+}
+function openNewGame() {
+ if(!anyScore()) { startNew(); return; }
+ openModal({ title:'Neues Spiel?', sub:'Alle Punkte werden gelöscht. Die Spieler bleiben.', action:{label:'Neues Spiel', cls:'danger', run:()=>startNew()} });
+}
+
+/* Ergebnis am Ende: Platzierung, Zettel ansehen (für einen Screenshot) oder Revanche */
+function openResult() {
+ const P = state.players.slice().sort((a,b)=>total(b)-total(a));
+ const top = total(P[0]);
+ const winners = P.filter(p=>total(p)===top);
+ const title = P.length===1 ? 'Geschafft!' : winners.length>1 ? 'Unentschieden!' : winners[0].name+' gewinnt!';
+ const sub = (P.length===1 ? total(P[0])+' Punkte' : winners.length>1 ? winners.map(p=>p.name).join(' und ')+' teilen sich Platz 1' : '') ;
+ openModal({
+  title, sub: [sub, gameDate() && 'Partie vom '+gameDate()].filter(Boolean).join(' · '),
+  html: '<ol class="podium">' + P.map(p=>{
+   const place = 1 + P.filter(q=>total(q)>total(p)).length;
+   return `<li class="${place===1?'win':''}"><span class="place">${place}.</span><span class="who">${esc(p.name)}</span><strong>${total(p)}</strong></li>`;
+  }).join('') + '</ol>',
+  cancel: 'Zettel ansehen',
+  action: {label:'Revanche', run:()=>startNew('Revanche! Neues Spiel gestartet')}
+ });
+}
+
+/* ---------- Ereignisse ---------- */
 $('sheet').addEventListener('click', e=>{
  const b = e.target.closest('[data-cell]');
  if(b) { const [pid,cid] = b.dataset.cell.split('|'); openScore(pid,cid); return; }
@@ -482,53 +704,46 @@ $('sheet').addEventListener('click', e=>{
 
 $('modalContent').addEventListener('click', e=>{
  if(!active) return;
- const p = state.players.find(x=>x.id===active.pid);
- if(!p) return closeModal();
  const b = e.target.closest('[data-choice]');
- if(b && active.type==='score') {
-  const v = Number(b.dataset.choice);
-  if(active.cid==='extra') p.extraKniff = v; else p.scores[active.cid] = v;
-  closeModal(); commit();
-  if(state.players.every(done)) toast('Partie beendet');
-  return;
- }
+ if(b && active.type==='score') { setScore(Number(b.dataset.choice)); return; }
  const a = e.target.closest('[data-act]');
- if(a && a.dataset.act==='rename') {
-  const n = prompt('Neuer Name:', p.name);
-  if(n && n.trim()) { p.name = n.trim().slice(0,24); commit(); }
-  closeModal();
- }
- if(a && a.dataset.act==='remove') {
-  if(confirm(p.name+' aus der Partie entfernen?')) {
-   state.players = state.players.filter(x=>x.id!==p.id); commit(); toast(p.name+' entfernt');
-  }
-  closeModal();
- }
+ const p = active.type==='player' && state.players.find(x=>x.id===active.pid);
+ if(!a || !p) return;
+ if(a.dataset.act==='rename') openRename(p);
+ if(a.dataset.act==='remove') openRemove(p);
 });
+$('modalContent').addEventListener('submit', e=>{ e.preventDefault(); if(modalAction) modalAction.run(); });
 
-$('cancelModal').onclick = closeModal;
-$('clearScore').onclick = ()=>{
- if(!active || active.type!=='score') return;
- const p = state.players.find(x=>x.id===active.pid);
- if(p) { delete p.scores[active.cid]; commit(); }
- closeModal();
-};
+$('cancelModal').onclick = ()=>{ closeModal(); if(allDone()) window.scrollTo({top:0, behavior:'smooth'}); };
+$('modalAction').onclick = ()=>{ if(modalAction) modalAction.run(); };
 $('modalBackdrop').addEventListener('click', e=>{ if(e.target===$('modalBackdrop')) closeModal(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape' && active) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('modalBackdrop').classList.contains('open')) closeModal(); });
 
-$('addPlayer').onclick = ()=>{
- if(state.players.length>=6) { toast('Maximal 6 Spieler'); return; }
- const n = prompt('Name des neuen Spielers:', 'Spieler '+(state.players.length+1));
- if(n && n.trim()) { state.players.push(blankPlayer(n.trim().slice(0,24))); commit(); }
-};
+// Blatt nach unten wegwischen (wie bei iOS-Blättern)
+(()=>{
+ const m = $('modal');
+ let y0 = null, dy = 0, swallow = false;
+ m.addEventListener('touchstart', e=>{
+  y0 = (m.scrollTop<=0 && e.touches.length===1) ? e.touches[0].clientY : null; dy = 0;
+ }, {passive:true});
+ m.addEventListener('touchmove', e=>{
+  if(y0===null || m.scrollTop>0) return;
+  dy = Math.max(0, e.touches[0].clientY - y0);
+  if(dy>0) { e.preventDefault(); m.style.transition = 'none'; m.style.transform = `translateY(${dy}px)`; }
+ }, {passive:false});
+ m.addEventListener('touchend', ()=>{
+  if(y0===null) return;
+  y0 = null; m.style.transition = '';
+  if(dy>8) { swallow = true; setTimeout(()=>{ swallow = false; }, 350); }
+  if(dy>90) closeModal(); else m.style.transform = '';
+ });
+ // Nach einem Wisch kein versehentliches Antippen der Taste darunter
+ m.addEventListener('click', e=>{ if(swallow) { swallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 
-$('newGame').onclick = ()=>{
- if(!confirm('Neues Spiel mit denselben Spielern starten? Alle Punkte werden gelöscht.')) return;
- state = fresh(state.players.map(p=>p.name));
- commit();
- window.scrollTo({top:0});
- toast('Neues Spiel gestartet');
-};
+$('addPlayer').onclick = openAddPlayer;
+$('newGame').onclick = openNewGame;
+$('showResult').onclick = openResult;
 
 $('exportBtn').onclick = ()=>{
  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
@@ -547,9 +762,9 @@ $('importFile').onchange = async e=>{
  try {
   const x = normalize(JSON.parse(await f.text()));
   if(!x) throw Error();
-  state = x; commit(); toast('Sicherung geladen');
+  remember(); state = x; commit(); toast('Sicherung geladen', UNDO);
  } catch(err) {
-  alert('Diese Datei ist keine QuicKniff-Sicherung. Bitte eine .json-Datei wählen, die über „Sicherung speichern“ entstanden ist.');
+  openModal({ title:'Datei nicht erkannt', sub:'Das ist keine QuicKniff-Sicherung. Bitte eine .json-Datei wählen, die über „Sichern“ entstanden ist.', cancel:'OK' });
  }
  e.target.value = '';
 };
@@ -560,16 +775,34 @@ const SUN = '<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/>
 function applyTheme(t, saveTheme) {
  document.documentElement.setAttribute('data-theme', t);
  $('themeBtn').innerHTML = t==='dark' ? SUN : MOON;
+ $('themeBtn').setAttribute('aria-label', t==='dark' ? 'Helle Darstellung' : 'Dunkle Darstellung');
  document.querySelector('meta[name="theme-color"]').setAttribute('content', t==='dark' ? '#000000' : '#f2f2f7');
  if(saveTheme) { try { localStorage.setItem('overall-theme', t); } catch(e) {} }
 }
 $('themeBtn').onclick = ()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark', true);
 applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light', false);
+// Solange niemand selbst gewählt hat: Wechsel der Geräte-Einstellung sofort übernehmen
+if(window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e=>{
+ let own = null;
+ try { own = localStorage.getItem('overall-theme') || localStorage.getItem('dash-theme'); } catch(err) {}
+ if(!own) applyTheme(e.matches ? 'dark' : 'light', false);
+});
 
 window.addEventListener('storage', e=>{
  if(e.key==='overall-theme' && e.newValue) applyTheme(e.newValue, false);
  if(e.key===STORAGE) { state = load(); render(); }
 });
+
+/* ---------- Bildschirm bleibt an, solange die Seite offen ist ---------- */
+let wake = null;
+async function keepAwake() {
+ if(!('wakeLock' in navigator) || wake || document.visibilityState!=='visible') return;
+ try { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', ()=>{ wake = null; }); }
+ catch(e) {}
+}
+document.addEventListener('visibilitychange', keepAwake);
+document.addEventListener('pointerdown', keepAwake, {passive:true}); // manche Browser verlangen eine Berührung
+keepAwake();
 
 render();
 
